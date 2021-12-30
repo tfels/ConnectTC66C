@@ -12,6 +12,7 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.core.content.PermissionChecker
 import de.felser_net.connecttc66c.databinding.ActivityMainBinding
 import androidx.appcompat.app.AlertDialog
@@ -55,6 +56,7 @@ class MainActivity : AppCompatActivity() {
             val builder: AlertDialog.Builder = AlertDialog.Builder(this)
             builder.setTitle(R.string.ble_ask_permission_title)
             builder.setMessage(R.string.ble_ask_permission_message)
+            builder.setCancelable(false)
             builder.setPositiveButton(android.R.string.ok) { _,_ ->
                 this.requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), BLE_PERMISSION_REQUEST_ID)
             }
@@ -85,9 +87,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             BLE_PERMISSION_REQUEST_ID -> {
-                if (grantResults == intArrayOf(PackageManager.PERMISSION_GRANTED)) {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d("MainActivity", "BLE permission granted")
                     blePermissionGranted = true
                 } else {
@@ -96,12 +99,17 @@ class MainActivity : AppCompatActivity() {
                     val builder: AlertDialog.Builder = AlertDialog.Builder(this)
                     builder.setTitle(R.string.ble_no_permission_title)
                     builder.setMessage(R.string.ble_no_permission_message)
+                    builder.setCancelable(false)
                     builder.setPositiveButton(android.R.string.ok) { _,_ -> this.finish() }
                     builder.show()
                 }
             }
 
-            else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+            else -> Toast.makeText(
+                this,
+                getString(R.string.unexpected_request_permission_result),
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 }
