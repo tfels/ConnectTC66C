@@ -1,6 +1,9 @@
 package de.felser_net.connecttc66c
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -9,12 +12,18 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
+import androidx.core.content.PermissionChecker
 import de.felser_net.connecttc66c.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+
+    companion object {
+        const val BLE_PERMISSION_REQUEST_ID = 1001
+        var blePermissionGranted: Boolean = false
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +40,18 @@ class MainActivity : AppCompatActivity() {
         binding.fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
+        }
+    }
+
+    // - let's get BLE permission
+    override fun onStart() {
+        super.onStart()
+
+        if (PermissionChecker.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==  PermissionChecker.PERMISSION_GRANTED ) {
+            Log.d("MainActivity", "BLE permission already granted")
+            blePermissionGranted = true
+        } else {
+            requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), BLE_PERMISSION_REQUEST_ID)
         }
     }
 
@@ -54,5 +75,21 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        when (requestCode) {
+            BLE_PERMISSION_REQUEST_ID -> {
+                if (grantResults == intArrayOf(PackageManager.PERMISSION_GRANTED)) {
+                    Log.d("MainActivity", "BLE permission granted")
+                    blePermissionGranted = true
+                } else {
+                    Log.w("MainActivity", "BLE permission NOT granted)")
+                    blePermissionGranted = false
+                }
+            }
+
+            else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
     }
 }
