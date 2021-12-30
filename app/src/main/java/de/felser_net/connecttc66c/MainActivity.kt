@@ -14,6 +14,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.core.content.PermissionChecker
 import de.felser_net.connecttc66c.databinding.ActivityMainBinding
+import androidx.appcompat.app.AlertDialog
 
 class MainActivity : AppCompatActivity() {
 
@@ -51,7 +52,13 @@ class MainActivity : AppCompatActivity() {
             Log.d("MainActivity", "BLE permission already granted")
             blePermissionGranted = true
         } else {
-            requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), BLE_PERMISSION_REQUEST_ID)
+            val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+            builder.setTitle(R.string.ble_ask_permission_title)
+            builder.setMessage(R.string.ble_ask_permission_message)
+            builder.setPositiveButton(android.R.string.ok) { _,_ ->
+                this.requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), BLE_PERMISSION_REQUEST_ID)
+            }
+            builder.show()
         }
     }
 
@@ -86,6 +93,11 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     Log.w("MainActivity", "BLE permission NOT granted)")
                     blePermissionGranted = false
+                    val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+                    builder.setTitle(R.string.ble_no_permission_title)
+                    builder.setMessage(R.string.ble_no_permission_message)
+                    builder.setPositiveButton(android.R.string.ok) { _,_ -> this.finish() }
+                    builder.show()
                 }
             }
 
