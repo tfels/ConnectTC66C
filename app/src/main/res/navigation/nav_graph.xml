@@ -12,17 +12,17 @@
         tools:layout="@layout/fragment_first">
 
         <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
+            android:id="@+id/action_FirstFragment_to_BleScanFragment"
+            app:destination="@id/BleScanFragment" />
     </fragment>
     <fragment
-        android:id="@+id/SecondFragment"
-        android:name="de.felser_net.connecttc66c.SecondFragment"
-        android:label="@string/second_fragment_label"
-        tools:layout="@layout/fragment_second">
+        android:id="@+id/BleScanFragment"
+        android:name="de.felser_net.connecttc66c.BleScanFragment"
+        android:label="@string/blescan_fragment_label"
+        tools:layout="@layout/fragment_ble_scan">
 
         <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
+            android:id="@+id/action_BleScanFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
     </fragment>
 </navigation>
