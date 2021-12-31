@@ -31,12 +31,12 @@ class BleScanFragment : Fragment() {
     // BLE device scan stuff
     private var mBtAdapter:BluetoothAdapter? = null
     private var mBleScanner: BluetoothLeScanner? = null
-    private var mBleDeviceListAdapter: BleDeviceListAdapter? = null;
+    private var mBleDeviceListAdapter: BleDeviceListAdapter? = null
 
     private val mBleScanCallback: ScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
-            var lastSeenSec = result?.let { (SystemClock.elapsedRealtimeNanos() - it.timestampNanos).toFloat() / 1000 / 1000 }
+            val lastSeenSec = result?.let { (SystemClock.elapsedRealtimeNanos() - it.timestampNanos).toFloat() / 1000 / 1000 }
             Log.i("BleScanFragment", "onScanResult():\n" +
                     "name:     ${result?.device?.name}\n" +
                     "address:  ${result?.device?.address}\n" +
