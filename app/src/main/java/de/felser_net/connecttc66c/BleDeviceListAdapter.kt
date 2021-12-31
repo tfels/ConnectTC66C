@@ -20,6 +20,7 @@ class BleDeviceListAdapter(context: Context) : BaseAdapter() {
     fun addData(data: ScanResult) {
         if (!mBleScanResultList.contains(data)) {
             mBleScanResultList.add(data)
+            notifyDataSetChanged()
         }
     }
 
@@ -33,6 +34,7 @@ class BleDeviceListAdapter(context: Context) : BaseAdapter() {
 
     fun clear() {
         mBleScanResultList.clear()
+        notifyDataSetChanged()
     }
 
     override fun getCount(): Int {
@@ -75,7 +77,7 @@ class BleDeviceListAdapter(context: Context) : BaseAdapter() {
 
         viewHolder.deviceAddressView?.text = device.address
 
-        val lastSeenSec = (SystemClock.elapsedRealtimeNanos() - scanResult.timestampNanos).toFloat() / 1000 / 1000
+        val lastSeenSec = (SystemClock.elapsedRealtimeNanos() - scanResult.timestampNanos).toFloat() / 1000 / 1000 / 1000
         viewHolder.lastSeenView?.text = mContext.getString(R.string.last_seen_ago, lastSeenSec)
 
         return view

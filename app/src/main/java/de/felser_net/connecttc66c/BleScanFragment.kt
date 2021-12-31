@@ -36,7 +36,7 @@ class BleScanFragment : Fragment() {
     private val mBleScanCallback: ScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
-            val lastSeenSec = result?.let { (SystemClock.elapsedRealtimeNanos() - it.timestampNanos).toFloat() / 1000 / 1000 }
+            val lastSeenSec = result?.let { (SystemClock.elapsedRealtimeNanos() - it.timestampNanos).toFloat() / 1000 / 1000 / 1000}
             Log.i("BleScanFragment", "onScanResult():\n" +
                     "name:     ${result?.device?.name}\n" +
                     "address:  ${result?.device?.address}\n" +
@@ -46,7 +46,6 @@ class BleScanFragment : Fragment() {
 
             if(result != null) {
                 mBleDeviceListAdapter?.addData(result)
-                mBleDeviceListAdapter?.notifyDataSetChanged()
             }
         }
     }
@@ -55,10 +54,8 @@ class BleScanFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         _binding = FragmentBleScanBinding.inflate(inflater, container, false)
         return binding.root
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -67,22 +64,26 @@ class BleScanFragment : Fragment() {
         binding.buttonSecond.setOnClickListener {
             findNavController().navigate(R.id.action_BleScanFragment_to_FirstFragment)
         }
-
-        val bluetoothManager = requireContext().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        mBtAdapter = bluetoothManager.adapter
-        mBleScanner = mBtAdapter?.bluetoothLeScanner
-
-        Log.i("BleScanFragment", "startScan")
-        mBleScanner!!.startScan(mBleScanCallback)
+        mBleDeviceListAdapter = BleDeviceListAdapter(requireContext())
+        binding.listviewScanResults.adapter = mBleDeviceListAdapter
     }
 
     override fun onResume() {
         super.onResume()
 
-        mBleDeviceListAdapter = BleDeviceListAdapter(requireContext(), layoutInflater)
-        binding.listviewScanResults.adapter = mBleDeviceListAdapter
+        val bluetoothManager = requireContext().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        mBtAdapter = bluetoothManager.adapter
+        mBleScanner = mBtAdapter?.bluetoothLeScanner
+        Log.i("BleScanFragment", "startScan")
+        mBleScanner!!.startScan(mBleScanCallback)
 
         populateResultList()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mBleScanner!!.stopScan(mBleScanCallback)
+        mBleDeviceListAdapter?.clear()
     }
 
     override fun onDestroyView() {
