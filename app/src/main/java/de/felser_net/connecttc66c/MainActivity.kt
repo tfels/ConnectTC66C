@@ -2,6 +2,7 @@ package de.felser_net.connecttc66c
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import com.google.android.material.snackbar.Snackbar
@@ -49,7 +50,15 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        if (PermissionChecker.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==  PermissionChecker.PERMISSION_GRANTED ) {
+        var permissionName: String
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) // Android 12
+            permissionName = Manifest.permission.BLUETOOTH_SCAN
+        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) // Android 10
+            permissionName = Manifest.permission.ACCESS_FINE_LOCATION
+        else // Android 9 or lower
+            permissionName = Manifest.permission.ACCESS_COARSE_LOCATION
+
+        if (PermissionChecker.checkSelfPermission(this, permissionName) ==  PermissionChecker.PERMISSION_GRANTED ) {
             Log.d("MainActivity", "BLE permission already granted")
             blePermissionGranted = true
         } else {
@@ -58,7 +67,7 @@ class MainActivity : AppCompatActivity() {
             builder.setMessage(R.string.ble_ask_permission_message)
             builder.setCancelable(false)
             builder.setPositiveButton(android.R.string.ok) { _,_ ->
-                this.requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), BLE_PERMISSION_REQUEST_ID)
+                this.requestPermissions(arrayOf(permissionName), BLE_PERMISSION_REQUEST_ID)
             }
             builder.show()
         }
