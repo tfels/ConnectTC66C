@@ -50,13 +50,14 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        var permissionName: String
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) // Android 12
-            permissionName = Manifest.permission.BLUETOOTH_SCAN
-        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) // Android 10
-            permissionName = Manifest.permission.ACCESS_FINE_LOCATION
-        else // Android 9 or lower
-            permissionName = Manifest.permission.ACCESS_COARSE_LOCATION
+        val permissionName = when {
+            // Android 12
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> Manifest.permission.BLUETOOTH_SCAN
+            // Android 10
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> Manifest.permission.ACCESS_FINE_LOCATION
+            // Android 9 or lower
+            else -> Manifest.permission.ACCESS_COARSE_LOCATION
+        }
 
         if (PermissionChecker.checkSelfPermission(this, permissionName) ==  PermissionChecker.PERMISSION_GRANTED ) {
             Log.d("MainActivity", "BLE permission already granted")
