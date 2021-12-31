@@ -28,11 +28,11 @@ class BleDeviceListAdapter: BaseAdapter {
     }
 
     fun getData(position: Int): ScanResult? {
-        var result = getItem(position)
-        if(result is ScanResult)
-            return result
+        val result = getItem(position)
+        return if(result is ScanResult)
+            result
         else
-            return null
+            null
     }
 
     fun clear() {
@@ -48,41 +48,41 @@ class BleDeviceListAdapter: BaseAdapter {
     }
 
     override fun getItemId(position: Int): Long {
-        return getData(position)?.device?.address.hashCode().toLong();
+        return getData(position)?.device?.address.hashCode().toLong()
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        var viewHolder: ViewHolder?
+        val viewHolder: ViewHolder?
         val view: View
 
         // optimized code: reuse existing view (we save a ViewHolder reference)
         if (convertView == null) {
-            view = mInflator.inflate(R.layout.item_ble_scan_result, null);
+            view = mInflator.inflate(R.layout.item_ble_scan_result, null)
             viewHolder = ViewHolder()
             viewHolder.deviceNameView = view.findViewById(R.id.device_name)
             viewHolder.deviceAddressView = view.findViewById(R.id.device_address)
             viewHolder.lastSeenView = view.findViewById(R.id.last_seen)
-            view.setTag(viewHolder)
+            view.tag = viewHolder
         } else {
             view = convertView
-            viewHolder = view.getTag() as ViewHolder
+            viewHolder = view.tag as ViewHolder
         }
 
         // set data texts
-        val scanResult: ScanResult = mBleScanResultList.get(position)
+        val scanResult: ScanResult = mBleScanResultList[position]
         val device: BluetoothDevice = scanResult.device
-        val deviceName = device.getName()
-        if (deviceName != null && deviceName?.length > 0)
-            viewHolder.deviceNameView?.setText(deviceName)
+        val deviceName = device.name
+        if (deviceName != null && deviceName.isNotEmpty())
+            viewHolder.deviceNameView?.text = deviceName
         else
-            viewHolder.deviceNameView?.setText("unknown device") //R.string.unknown_device);
+            viewHolder.deviceNameView?.setText(R.string.unknown_device)
 
-        viewHolder.deviceAddressView?.setText(device.address)
+        viewHolder.deviceAddressView?.text = device.address
 
-        var lastSeenSec = scanResult?.let { (SystemClock.elapsedRealtimeNanos() - it.timestampNanos).toFloat() / 1000 / 1000 }
-        viewHolder.lastSeenView?.setText("${lastSeenSec}s ago")
+        val lastSeenSec = (SystemClock.elapsedRealtimeNanos() - scanResult.timestampNanos).toFloat() / 1000 / 1000
+        viewHolder.lastSeenView?.text = mContext?.getString(R.string.last_seen_ago, lastSeenSec)
 
-        return view;
+        return view
     }
 
     // internal class for holding info about one line

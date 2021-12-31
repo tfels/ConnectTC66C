@@ -15,4 +15,6 @@
     <string name="no_bluetooth_support">This device doesn\'t support bluetooth.</string>
     <string name="bt_disabled_title">Bluetooth is disabled</string>
     <string name="bt_disabled_title_message">You did not enable bluetooth. Therefore this app cannot work and will terminate now.</string>
+    <string name="unknown_device">unknown device</string>
+    <string name="last_seen_ago">%1$.2fs ago</string>
 </resources>
