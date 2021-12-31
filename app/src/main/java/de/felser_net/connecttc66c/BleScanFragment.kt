@@ -76,8 +76,6 @@ class BleScanFragment : Fragment() {
         mBleScanner = mBtAdapter?.bluetoothLeScanner
         Log.i("BleScanFragment", "startScan")
         mBleScanner!!.startScan(mBleScanCallback)
-
-        populateResultList()
     }
 
     override fun onPause() {
@@ -91,16 +89,5 @@ class BleScanFragment : Fragment() {
         _binding = null
         Log.i("BleScanFragment", "stopScan")
         mBleScanner!!.stopScan(mBleScanCallback)
-    }
-
-    private fun populateResultList() {
-        // some demo data for emulator
-        val btDevice = mBtAdapter?.getRemoteDevice("00:11:22:33:AA:BB")
-        val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                ScanResult(btDevice, 0, 0, 0, 0, 0, 50, 0, null, SystemClock.elapsedRealtimeNanos())
-            else
-                ScanResult(btDevice, null, 50, SystemClock.elapsedRealtimeNanos())
-        mBleDeviceListAdapter?.addData(result)
-        mBleDeviceListAdapter?.notifyDataSetChanged()
     }
 }
