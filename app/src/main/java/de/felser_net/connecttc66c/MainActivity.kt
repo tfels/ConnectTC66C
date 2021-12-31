@@ -29,7 +29,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     companion object {
-        const val BLE_PERMISSION_REQUEST_ID = 1001
         var blePermissionGranted: Boolean = false
     }
 
@@ -85,7 +84,7 @@ class MainActivity : AppCompatActivity() {
             builder.setMessage(R.string.ble_ask_permission_message)
             builder.setCancelable(false)
             builder.setPositiveButton(android.R.string.ok) { _,_ ->
-                this.requestPermissions(arrayOf(permissionName), BLE_PERMISSION_REQUEST_ID)
+                this.mRequestBlePermissionResult.launch(permissionName)
             }
             builder.show()
         }
@@ -129,29 +128,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            BLE_PERMISSION_REQUEST_ID -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d("MainActivity", "BLE permission granted")
-                    blePermissionGranted = true
-                } else {
-                    Log.w("MainActivity", "BLE permission NOT granted)")
-                    blePermissionGranted = false
-                    val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-                    builder.setTitle(R.string.ble_no_permission_title)
-                    builder.setMessage(R.string.ble_no_permission_message)
-                    builder.setCancelable(false)
-                    builder.setPositiveButton(android.R.string.ok) { _,_ -> this.finish() }
-                    builder.show()
-                }
-            }
-            else -> Toast.makeText(
-                this,
-                getString(R.string.unexpected_request_permission_result),
-                Toast.LENGTH_LONG
-            ).show()
+    // our result handler object when requesting BLE permission
+    private val mRequestBlePermissionResult = registerForActivityResult(ActivityResultContracts.RequestPermission())
+    { isGranted ->
+        if (isGranted) {
+            Log.d("MainActivity", "BLE permission granted")
+            blePermissionGranted = true
+        } else {
+            Log.w("MainActivity", "BLE permission NOT granted)")
+            blePermissionGranted = false
+            val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+            builder.setTitle(R.string.ble_no_permission_title)
+            builder.setMessage(R.string.ble_no_permission_message)
+            builder.setCancelable(false)
+            builder.setPositiveButton(android.R.string.ok) { _,_ -> this.finish() }
+            builder.show()
         }
     }
 }
