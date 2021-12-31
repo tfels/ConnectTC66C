@@ -17,6 +17,8 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.PermissionChecker
 import de.felser_net.connecttc66c.databinding.ActivityMainBinding
 import androidx.appcompat.app.AlertDialog
@@ -27,7 +29,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     companion object {
-        const val REQUEST_ENABLE_BLUETOOTH = 101
         const val BLE_PERMISSION_REQUEST_ID = 1001
         var blePermissionGranted: Boolean = false
     }
@@ -58,7 +59,7 @@ class MainActivity : AppCompatActivity() {
         }
         if (!bluetoothAdapter.isEnabled) {
             val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            startActivityForResult(enableBluetoothIntent, REQUEST_ENABLE_BLUETOOTH)
+            mEnableBluetoothResult.launch(enableBluetoothIntent)
         }
     }
 
@@ -112,22 +113,19 @@ class MainActivity : AppCompatActivity() {
                 || super.onSupportNavigateUp()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            REQUEST_ENABLE_BLUETOOTH -> {
-                if(resultCode == RESULT_OK)
-                    Log.d("MainActivity", "bluetooth enabled")
-                else {
-                    Log.d("MainActivity", "bluetooth NOT enabled")
-                    val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-                    builder.setTitle(R.string.bt_disabled_title)
-                    builder.setMessage(R.string.bt_disabled_title_message)
-                    builder.setCancelable(false)
-                    builder.setPositiveButton(android.R.string.ok) { _, _ -> this.finish() }
-                    builder.show()
-                }
-            }
+    // our result handler object when enabling bluetooth
+    private val mEnableBluetoothResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult())
+    { result: ActivityResult ->
+        if(result.resultCode == RESULT_OK)
+            Log.d("MainActivity", "bluetooth enabled")
+        else {
+            Log.d("MainActivity", "bluetooth NOT enabled")
+            val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+            builder.setTitle(R.string.bt_disabled_title)
+            builder.setMessage(R.string.bt_disabled_title_message)
+            builder.setCancelable(false)
+            builder.setPositiveButton(android.R.string.ok) { _, _ -> this.finish() }
+            builder.show()
         }
     }
 
