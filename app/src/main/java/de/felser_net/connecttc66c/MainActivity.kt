@@ -1,6 +1,9 @@
 package de.felser_net.connecttc66c
 
 import android.Manifest
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -24,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     companion object {
+        const val REQUEST_ENABLE_BLUETOOTH = 101
         const val BLE_PERMISSION_REQUEST_ID = 1001
         var blePermissionGranted: Boolean = false
     }
@@ -43,6 +47,18 @@ class MainActivity : AppCompatActivity() {
         binding.fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
+        }
+
+        // check if bluetooth BLE is available
+        val bluetoothManager = getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
+        val bluetoothAdapter = bluetoothManager.adapter
+        if(bluetoothAdapter==null || !packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(this, R.string.no_bluetooth_support, Toast.LENGTH_LONG).show()
+            finish()
+        }
+        if (!bluetoothAdapter.isEnabled) {
+            val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            startActivityForResult(enableBluetoothIntent, REQUEST_ENABLE_BLUETOOTH)
         }
     }
 
@@ -96,6 +112,25 @@ class MainActivity : AppCompatActivity() {
                 || super.onSupportNavigateUp()
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            REQUEST_ENABLE_BLUETOOTH -> {
+                if(resultCode == RESULT_OK)
+                    Log.d("MainActivity", "bluetooth enabled")
+                else {
+                    Log.d("MainActivity", "bluetooth NOT enabled")
+                    val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+                    builder.setTitle(R.string.bt_disabled_title)
+                    builder.setMessage(R.string.bt_disabled_title_message)
+                    builder.setCancelable(false)
+                    builder.setPositiveButton(android.R.string.ok) { _, _ -> this.finish() }
+                    builder.show()
+                }
+            }
+        }
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
@@ -114,7 +149,6 @@ class MainActivity : AppCompatActivity() {
                     builder.show()
                 }
             }
-
             else -> Toast.makeText(
                 this,
                 getString(R.string.unexpected_request_permission_result),
