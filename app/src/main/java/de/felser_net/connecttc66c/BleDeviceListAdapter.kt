@@ -18,10 +18,23 @@ class BleDeviceListAdapter(context: Context) : BaseAdapter() {
     private val mInflator = LayoutInflater.from(context)
 
     fun addData(data: ScanResult) {
-        if (!mBleScanResultList.contains(data)) {
-            mBleScanResultList.add(data)
-            notifyDataSetChanged()
+        val listData = listAlreadyContains(data)
+        mBleScanResultList.remove(listData)
+
+        mBleScanResultList.add(data)
+        notifyDataSetChanged()
+    }
+
+    // my own `contains` method because we only compare some data
+    private fun listAlreadyContains(searchFor: ScanResult?): ScanResult? {
+        if (searchFor == null) {
+            return null
+        } else {
+            for (listItem in mBleScanResultList)
+                if (listItem.device == searchFor.device)
+                    return listItem
         }
+        return null
     }
 
     fun getData(position: Int): ScanResult? {
