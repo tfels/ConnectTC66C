@@ -8,7 +8,6 @@
     <string name="previous">Previous</string>
 
     <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="ble_ask_permission_title">Location Permission</string>
     <string name="ble_ask_permission_message">This app needs device location permission for accessing Bluetooth LE hardware. Please grant the permission.</string>
     <string name="ble_no_permission_title">BLE access denied</string>

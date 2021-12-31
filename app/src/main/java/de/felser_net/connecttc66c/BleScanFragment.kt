@@ -1,10 +1,12 @@
 package de.felser_net.connecttc66c
 
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
@@ -27,7 +29,10 @@ class BleScanFragment : Fragment() {
     private val binding get() = _binding!!
 
     // BLE device scan stuff
+    private var mBtAdapter:BluetoothAdapter? = null
     private var mBleScanner: BluetoothLeScanner? = null
+    private var mBleDeviceListAdapter: BleDeviceListAdapter? = null;
+
     private val mBleScanCallback: ScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
@@ -38,6 +43,11 @@ class BleScanFragment : Fragment() {
                     "rssi:     ${result?.rssi} dBm\n" +
                     "lastSeen: ${lastSeenSec}s ago"
             )
+
+            if(result != null) {
+                mBleDeviceListAdapter?.addData(result)
+                mBleDeviceListAdapter?.notifyDataSetChanged()
+            }
         }
     }
 
@@ -59,11 +69,20 @@ class BleScanFragment : Fragment() {
         }
 
         val bluetoothManager = requireContext().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        val bluetoothAdapter = bluetoothManager.adapter
-        mBleScanner = bluetoothAdapter.bluetoothLeScanner
+        mBtAdapter = bluetoothManager.adapter
+        mBleScanner = mBtAdapter?.bluetoothLeScanner
 
         Log.i("BleScanFragment", "startScan")
         mBleScanner!!.startScan(mBleScanCallback)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        mBleDeviceListAdapter = BleDeviceListAdapter(requireContext(), layoutInflater)
+        binding.listviewScanResults.adapter = mBleDeviceListAdapter
+
+        populateResultList()
     }
 
     override fun onDestroyView() {
@@ -71,5 +90,16 @@ class BleScanFragment : Fragment() {
         _binding = null
         Log.i("BleScanFragment", "stopScan")
         mBleScanner!!.stopScan(mBleScanCallback)
+    }
+
+    private fun populateResultList() {
+        // some demo data for emulator
+        val btDevice = mBtAdapter?.getRemoteDevice("00:11:22:33:AA:BB")
+        val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                ScanResult(btDevice, 0, 0, 0, 0, 0, 50, 0, null, SystemClock.elapsedRealtimeNanos())
+            else
+                ScanResult(btDevice, null, 50, SystemClock.elapsedRealtimeNanos())
+        mBleDeviceListAdapter?.addData(result)
+        mBleDeviceListAdapter?.notifyDataSetChanged()
     }
 }
