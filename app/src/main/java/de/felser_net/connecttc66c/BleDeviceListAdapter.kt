@@ -11,15 +11,11 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 
 
-class BleDeviceListAdapter: BaseAdapter {
-    private val mBleScanResultList = ArrayList<ScanResult>()
-    private var mContext: Context? = null
-    private val mInflator: LayoutInflater
+class BleDeviceListAdapter(context: Context) : BaseAdapter() {
 
-    constructor(mContext: Context?, mInflator: LayoutInflater) : super() {
-        this.mContext = mContext
-        this.mInflator = mInflator
-    }
+    private val mBleScanResultList = ArrayList<ScanResult>()
+    private val mContext = context
+    private val mInflator = LayoutInflater.from(context)
 
     fun addData(data: ScanResult) {
         if (!mBleScanResultList.contains(data)) {
@@ -80,7 +76,7 @@ class BleDeviceListAdapter: BaseAdapter {
         viewHolder.deviceAddressView?.text = device.address
 
         val lastSeenSec = (SystemClock.elapsedRealtimeNanos() - scanResult.timestampNanos).toFloat() / 1000 / 1000
-        viewHolder.lastSeenView?.text = mContext?.getString(R.string.last_seen_ago, lastSeenSec)
+        viewHolder.lastSeenView?.text = mContext.getString(R.string.last_seen_ago, lastSeenSec)
 
         return view
     }
