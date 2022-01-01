@@ -18,8 +18,7 @@
     <fragment
         android:id="@+id/BleScanFragment"
         android:name="de.felser_net.connecttc66c.BleScanFragment"
-        android:label="@string/blescan_fragment_label"
-        tools:layout="@layout/fragment_ble_scan">
+        android:label="@string/blescan_fragment_label">
 
         <action
             android:id="@+id/action_BleScanFragment_to_FirstFragment"

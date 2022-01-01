@@ -6,27 +6,13 @@ import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
-import de.felser_net.connecttc66c.databinding.FragmentBleScanBinding
+import androidx.fragment.app.ListFragment
 
-/**
- * A simple [Fragment] subclass as the second destination in the navigation.
- */
-class BleScanFragment : Fragment() {
-
-    private var _binding: FragmentBleScanBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
+class BleScanFragment : ListFragment() {
 
     // BLE device scan stuff
     private var mBtAdapter:BluetoothAdapter? = null
@@ -50,22 +36,12 @@ class BleScanFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        _binding = FragmentBleScanBinding.inflate(inflater, container, false)
-        return binding.root
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.buttonSecond.setOnClickListener {
-            findNavController().navigate(R.id.action_BleScanFragment_to_FirstFragment)
-        }
         mBleDeviceListAdapter = BleDeviceListAdapter(requireContext())
-        binding.listviewScanResults.adapter = mBleDeviceListAdapter
+        listAdapter = mBleDeviceListAdapter
     }
 
     override fun onResume() {
@@ -79,15 +55,14 @@ class BleScanFragment : Fragment() {
     }
 
     override fun onPause() {
-        super.onPause()
         mBleScanner!!.stopScan(mBleScanCallback)
         mBleDeviceListAdapter?.clear()
+        super.onPause()
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
         Log.i("BleScanFragment", "stopScan")
         mBleScanner!!.stopScan(mBleScanCallback)
+        super.onDestroyView()
     }
 }
