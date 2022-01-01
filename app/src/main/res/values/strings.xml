@@ -18,4 +18,6 @@
 
     <string name="device_last_seen_ago">%1$.2fs ago</string>
     <string name="device_rssi">RSSI: %1$d dBm</string>
+    <string name="uuid_filter_on">UUID filter on</string>
+    <string name="uuid_filter_off">UUID filter off</string>
 </resources>

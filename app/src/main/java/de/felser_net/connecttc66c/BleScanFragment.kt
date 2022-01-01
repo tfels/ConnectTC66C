@@ -8,8 +8,14 @@ import android.os.Bundle
 import android.os.ParcelUuid
 import android.os.SystemClock
 import android.util.Log
+import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.ListFragment
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class BleScanFragment : ListFragment() {
 
@@ -38,6 +44,47 @@ class BleScanFragment : ListFragment() {
         }
     }
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+
+        val listFragView = super.onCreateView(inflater, container, savedInstanceState)
+
+        // we create a new CoordinatorLayout ...
+        val coordLayout = CoordinatorLayout(requireContext())
+        coordLayout.addView(listFragView, CoordinatorLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+
+        // ... for adding a FloatingActionButton to this ListFragment
+        val fab = FloatingActionButton(requireContext())
+        fab.setImageResource(requireContext().resources.getIdentifier("@android:drawable/btn_check_off", null, null))
+        //fab.setImageDrawable(requireContext().resources.getDrawable(android.R.drawable.ic_dialog_email))
+        fab.setOnClickListener { view ->
+            this.mApplyScanFilter = !this.mApplyScanFilter
+            val messageResId = if(this.mApplyScanFilter)
+                R.string.uuid_filter_on
+            else
+                R.string.uuid_filter_off
+            val imageResName = if(this.mApplyScanFilter)
+                "@android:drawable/btn_check_on"
+            else
+                "@android:drawable/btn_check_off"
+            Toast.makeText(view.context, view.context.resources.getString(messageResId), Toast.LENGTH_SHORT).show()
+            fab.setImageResource(view.context.resources.getIdentifier(imageResName, null, null))
+            startBleScan()
+        }
+
+        val fabLayoutParams = CoordinatorLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply {
+            gravity = Gravity.BOTTOM or Gravity.END
+            marginEnd = requireContext().resources.getDimensionPixelSize(R.dimen.fab_margin)
+            bottomMargin = requireContext().resources.getDimensionPixelSize(R.dimen.fab_margin) //"16dp"
+        }
+
+        coordLayout.addView(fab, fabLayoutParams)
+
+        return coordLayout
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
