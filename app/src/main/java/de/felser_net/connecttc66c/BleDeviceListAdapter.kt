@@ -73,6 +73,7 @@ class BleDeviceListAdapter(context: Context) : BaseAdapter() {
             viewHolder.deviceNameView = view.findViewById(R.id.device_name)
             viewHolder.deviceAddressView = view.findViewById(R.id.device_address)
             viewHolder.lastSeenView = view.findViewById(R.id.last_seen)
+            viewHolder.rssi = view.findViewById(R.id.rssi)
             view.tag = viewHolder
         } else {
             view = convertView
@@ -91,7 +92,9 @@ class BleDeviceListAdapter(context: Context) : BaseAdapter() {
         viewHolder.deviceAddressView?.text = device.address
 
         val lastSeenSec = (SystemClock.elapsedRealtimeNanos() - scanResult.timestampNanos).toFloat() / 1000 / 1000 / 1000
-        viewHolder.lastSeenView?.text = mContext.getString(R.string.last_seen_ago, lastSeenSec)
+        viewHolder.lastSeenView?.text = mContext.getString(R.string.device_last_seen_ago, lastSeenSec)
+
+        viewHolder.rssi?.text = mContext.getString(R.string.device_rssi, scanResult.rssi)
 
         return view
     }
@@ -101,5 +104,6 @@ class BleDeviceListAdapter(context: Context) : BaseAdapter() {
         var deviceNameView: TextView? = null
         var deviceAddressView: TextView? = null
         var lastSeenView: TextView? = null
+        var rssi: TextView? = null
     }
 }
