@@ -13,5 +13,7 @@
     <string name="ble_ask_permission_message">This app needs device location permission for accessing Bluetooth LE hardware. Please grant the permission.</string>
     <string name="ble_no_permission_title">BLE access denied</string>
     <string name="ble_no_permission_message">You did not grant location permission, so BLE access is not possible. Therefore this app cannot work and will terminate now.</string>
-    <string name="unexpected_request_permission_result">unexpected request permissions result</string>
+    <string name="no_bluetooth_support">This device doesn\'t support bluetooth.</string>
+    <string name="bt_disabled_title">Bluetooth is disabled</string>
+    <string name="bt_disabled_title_message">You did not enable bluetooth. Therefore this app cannot work and will terminate now.</string>
 </resources>
