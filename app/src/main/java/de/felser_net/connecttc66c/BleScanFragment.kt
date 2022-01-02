@@ -8,12 +8,10 @@ import android.os.Bundle
 import android.os.ParcelUuid
 import android.os.SystemClock
 import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.ListFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
@@ -24,6 +22,7 @@ class BleScanFragment : ListFragment() {
     private var mBleScanner: BluetoothLeScanner? = null
     private var mBleDeviceListAdapter: BleDeviceListAdapter? = null
     private var mApplyScanFilter= false
+    private var mFab: FloatingActionButton? = null
 
     private val mBleScanCallback: ScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
@@ -48,16 +47,16 @@ class BleScanFragment : ListFragment() {
 
         val listFragView = super.onCreateView(inflater, container, savedInstanceState)
 
-        // we create a new CoordinatorLayout ...
-        val coordLayout = CoordinatorLayout(requireContext())
-        coordLayout.addView(listFragView, CoordinatorLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        // modify / setup the FloatingActionButton in our activity
+        // I know this is a rather bad approach but I tried several others
+        // e.g. a NavController.OnDestinationChangedListener
+        // but nothing worked :-(
+        if (activity is MainActivity)
+            mFab = (activity as MainActivity).binding.fab
 
-        // ... for adding a FloatingActionButton to this ListFragment
-        val fab = FloatingActionButton(requireContext())
-        fab.setImageResource(requireContext().resources.getIdentifier("@android:drawable/btn_check_off", null, null))
-        //fab.setImageDrawable(requireContext().resources.getDrawable(android.R.drawable.ic_dialog_email))
-        fab.setOnClickListener { view ->
+        mFab?.setImageResource(requireContext().resources.getIdentifier("@android:drawable/btn_check_off", null, null))
+        //mFab.setImageDrawable(requireContext().resources.getDrawable(android.R.drawable.ic_dialog_email))
+        mFab?.setOnClickListener { view ->
             this.mApplyScanFilter = !this.mApplyScanFilter
             val messageResId = if(this.mApplyScanFilter)
                 R.string.uuid_filter_on
@@ -68,22 +67,11 @@ class BleScanFragment : ListFragment() {
             else
                 "@android:drawable/btn_check_off"
             Toast.makeText(view.context, view.context.resources.getString(messageResId), Toast.LENGTH_SHORT).show()
-            fab.setImageResource(view.context.resources.getIdentifier(imageResName, null, null))
+            mFab?.setImageResource(view.context.resources.getIdentifier(imageResName, null, null))
             startBleScan()
         }
 
-        val fabLayoutParams = CoordinatorLayout.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        ).apply {
-            gravity = Gravity.BOTTOM or Gravity.END
-            marginEnd = requireContext().resources.getDimensionPixelSize(R.dimen.fab_margin)
-            bottomMargin = requireContext().resources.getDimensionPixelSize(R.dimen.fab_margin) //"16dp"
-        }
-
-        coordLayout.addView(fab, fabLayoutParams)
-
-        return coordLayout
+        return listFragView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -104,6 +92,10 @@ class BleScanFragment : ListFragment() {
     }
 
     override fun onDestroyView() {
+        // cleanup fab, unfortunately this approach cannot restore the previous state
+        mFab?.setOnClickListener(null)
+        mFab?.setImageResource(0)
+
         stopBleScan()
         super.onDestroyView()
     }
