@@ -18,6 +18,7 @@ class FirstFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+    private var btComObject: BluetoothCommunication? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,15 +26,21 @@ class FirstFragment : Fragment() {
     ): View? {
 
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
-        return binding.root
 
+        if(activity is MainActivity) {
+            val activity = activity as MainActivity
+            btComObject = activity.btComObject
+        }
+
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.buttonGotoBleScan.setOnClickListener {
-            findNavController().navigate(R.id.action_FirstFragment_to_BleScanFragment)
+            //findNavController().navigate(R.id.action_FirstFragment_to_BleScanFragment)
+            btComObject?.sendCommand(BluetoothCommunication.CMD_ROTATE)
         }
     }
 
