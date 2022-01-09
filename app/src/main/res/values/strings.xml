@@ -2,11 +2,10 @@
     <string name="app_name">ConnectTC66C</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
+    <string name="device_communication_fragment_label">Device Communication</string>
     <string name="blescan_fragment_label">BLE Device Scan</string>
     <string name="btntext_goto_blescan">BLE Device Scan</string>
 
-    <string name="hello_first_fragment">Hello first fragment</string>
     <string name="ble_ask_permission_title">Location Permission</string>
     <string name="ble_ask_permission_message">This app needs device location permission for accessing Bluetooth LE hardware. Please grant the permission.</string>
     <string name="ble_no_permission_title">BLE access denied</string>

@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     internal lateinit var binding: ActivityMainBinding
+    val btComObject = BluetoothCommunication(this)
 
     companion object {
         var blePermissionGranted: Boolean = false
@@ -88,6 +89,8 @@ class MainActivity : AppCompatActivity() {
             }
             builder.show()
         }
+        btComObject.initBluetooth()
+        btComObject.connect("48:87:2D:64:0C:32")
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
