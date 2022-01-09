@@ -3,16 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
+    app:startDestination="@id/DeviceCommunicationFragment">
 
     <fragment
-        android:id="@+id/FirstFragment"
-        android:name="de.felser_net.connecttc66c.FirstFragment"
-        android:label="@string/first_fragment_label"
-        tools:layout="@layout/fragment_first">
+        android:id="@+id/DeviceCommunicationFragment"
+        android:name="de.felser_net.connecttc66c.DeviceCommunicationFragment"
+        android:label="@string/device_communication_fragment_label"
+        tools:layout="@layout/fragment_device_communication">
 
         <action
-            android:id="@+id/action_FirstFragment_to_BleScanFragment"
+            android:id="@+id/action_DeviceCommunicationFragment_to_BleScanFragment"
             app:destination="@id/BleScanFragment" />
     </fragment>
     <fragment
@@ -21,7 +21,7 @@
         android:label="@string/blescan_fragment_label">
 
         <action
-            android:id="@+id/action_BleScanFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
+            android:id="@+id/action_BleScanFragment_to_DeviceCommunicationFragment"
+            app:destination="@id/DeviceCommunicationFragment" />
     </fragment>
 </navigation>

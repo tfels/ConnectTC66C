@@ -6,14 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
-import de.felser_net.connecttc66c.databinding.FragmentFirstBinding
+import de.felser_net.connecttc66c.databinding.FragmentDeviceCommunicationBinding
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
-class FirstFragment : Fragment() {
+class DeviceCommunicationFragment : Fragment() {
 
-    private var _binding: FragmentFirstBinding? = null
+    private var _binding: FragmentDeviceCommunicationBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -25,7 +25,7 @@ class FirstFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        _binding = FragmentFirstBinding.inflate(inflater, container, false)
+        _binding = FragmentDeviceCommunicationBinding.inflate(inflater, container, false)
 
         if(activity is MainActivity) {
             val activity = activity as MainActivity
@@ -39,9 +39,9 @@ class FirstFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.buttonGotoBleScan.setOnClickListener {
-            findNavController().navigate(R.id.action_FirstFragment_to_BleScanFragment)
+            findNavController().navigate(R.id.action_DeviceCommunicationFragment_to_BleScanFragment)
         }
-        binding.textviewFirst.text = "<some data>"
+        binding.textviewData.text = "<some data>"
 
         binding.buttonPreviousScreen.setOnClickListener {
             btComObject?.sendCommand(BluetoothCommunication.CMD_PREV_PAGE)
