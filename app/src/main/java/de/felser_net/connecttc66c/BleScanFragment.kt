@@ -11,8 +11,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ListView
 import android.widget.Toast
 import androidx.fragment.app.ListFragment
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class BleScanFragment : ListFragment() {
@@ -116,6 +118,23 @@ class BleScanFragment : ListFragment() {
             mBleScanner?.startScan(scanFilter, scanSettings, mBleScanCallback)
         } else {
             mBleScanner?.startScan(mBleScanCallback)
+        }
+    }
+
+    override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
+        super.onListItemClick(l, v, position, id)
+
+        val item = listView.getItemAtPosition(position)
+        if((item == null) or (item !is ScanResult))
+            return
+        val scanResult = item as ScanResult
+
+        // save device address to our preferences
+        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
+        with (sharedPref.edit()) {
+            putString(getString(R.string.saved_device_address), scanResult.device.address)
+            apply()
+            findNavController().navigate(R.id.action_BleScanFragment_to_DeviceCommunicationFragment)
         }
     }
 
