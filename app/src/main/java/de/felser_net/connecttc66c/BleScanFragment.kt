@@ -81,6 +81,12 @@ class BleScanFragment : ListFragment() {
 
         mBleDeviceListAdapter = BleDeviceListAdapter(requireContext())
         listAdapter = mBleDeviceListAdapter
+
+        // get saved device and set as selected
+        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
+        val deviceAddress = sharedPref.getString(getString(R.string.saved_device_address), null)
+        if (deviceAddress != null)
+            mBleDeviceListAdapter?.setSelectedDevice(deviceAddress)
     }
 
     override fun onResume() {

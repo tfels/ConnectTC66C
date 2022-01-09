@@ -3,6 +3,7 @@ package de.felser_net.connecttc66c
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanResult
 import android.content.Context
+import android.graphics.Color
 import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +17,8 @@ class BleDeviceListAdapter(context: Context) : BaseAdapter() {
     private val mBleScanResultList = ArrayList<ScanResult>()
     private val mContext = context
     private val mInflator = LayoutInflater.from(context)
+    private var selectedDeviceAddress: String? = null
+    private var defaultTextColor: Int? = 0
 
     fun addData(data: ScanResult) {
         val listData = listAlreadyContains(data)
@@ -43,6 +46,11 @@ class BleDeviceListAdapter(context: Context) : BaseAdapter() {
             result
         else
             null
+    }
+
+    fun setSelectedDevice(address: String) {
+        selectedDeviceAddress = address
+        notifyDataSetChanged()
     }
 
     fun clear() {
@@ -75,6 +83,7 @@ class BleDeviceListAdapter(context: Context) : BaseAdapter() {
             viewHolder.lastSeenView = view.findViewById(R.id.last_seen)
             viewHolder.rssi = view.findViewById(R.id.rssi)
             view.tag = viewHolder
+            defaultTextColor = viewHolder.deviceAddressView?.textColors?.defaultColor
         } else {
             view = convertView
             viewHolder = view.tag as ViewHolder
@@ -95,6 +104,12 @@ class BleDeviceListAdapter(context: Context) : BaseAdapter() {
         viewHolder.lastSeenView?.text = mContext.getString(R.string.device_last_seen_ago, lastSeenSec)
 
         viewHolder.rssi?.text = mContext.getString(R.string.device_rssi, scanResult.rssi)
+
+        // mark selected entry
+        if(device.address == selectedDeviceAddress)
+            viewHolder.deviceAddressView?.setTextColor(Color.RED)
+        else
+            viewHolder.deviceAddressView?.setTextColor(defaultTextColor?:Color.BLACK)
 
         return view
     }
