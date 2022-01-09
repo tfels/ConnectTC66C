@@ -39,8 +39,21 @@ class FirstFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.buttonGotoBleScan.setOnClickListener {
-            //findNavController().navigate(R.id.action_FirstFragment_to_BleScanFragment)
+            findNavController().navigate(R.id.action_FirstFragment_to_BleScanFragment)
+        }
+        binding.textviewFirst.text = "<some data>"
+
+        binding.buttonPreviousScreen.setOnClickListener {
+            btComObject?.sendCommand(BluetoothCommunication.CMD_PREV_PAGE)
+        }
+        binding.buttonNextScreen.setOnClickListener {
+            btComObject?.sendCommand(BluetoothCommunication.CMD_NEXT_PAGE)
+        }
+        binding.buttonRotateScreen.setOnClickListener {
             btComObject?.sendCommand(BluetoothCommunication.CMD_ROTATE)
+        }
+        binding.buttonGetData.setOnClickListener {
+            btComObject?.sendCommand(BluetoothCommunication.CMD_GET_VALUES)
         }
     }
 
