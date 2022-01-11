@@ -3,7 +3,6 @@ package de.felser_net.connecttc66c
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -91,11 +90,6 @@ class MainActivity : AppCompatActivity() {
             builder.show()
         }
         btComObject.initBluetooth()
-
-        val sharedPref = getPreferences(Context.MODE_PRIVATE) ?: return
-        val deviceAddress = sharedPref.getString(getString(R.string.saved_device_address), null)
-        if (deviceAddress != null)
-            btComObject.connect(deviceAddress)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
