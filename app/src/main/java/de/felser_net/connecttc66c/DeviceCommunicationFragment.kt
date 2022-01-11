@@ -1,5 +1,6 @@
 package de.felser_net.connecttc66c
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -60,5 +61,20 @@ class DeviceCommunicationFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // connect
+        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
+        val deviceAddress = sharedPref.getString(getString(R.string.saved_device_address), null)
+        if (deviceAddress != null)
+            btComObject?.connect(deviceAddress)
+    }
+
+    override fun onPause() {
+        btComObject?.disconnect()
+        super.onPause()
     }
 }

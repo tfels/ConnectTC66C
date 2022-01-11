@@ -90,7 +90,6 @@ class MainActivity : AppCompatActivity() {
             builder.show()
         }
         btComObject.initBluetooth()
-        btComObject.connect("48:87:2D:64:0C:32")
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

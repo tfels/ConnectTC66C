@@ -19,4 +19,5 @@
     <string name="device_rssi">RSSI: %1$d dBm</string>
     <string name="uuid_filter_on">UUID filter on</string>
     <string name="uuid_filter_off">UUID filter off</string>
+    <string name="saved_device_address">device-address</string>
 </resources>
