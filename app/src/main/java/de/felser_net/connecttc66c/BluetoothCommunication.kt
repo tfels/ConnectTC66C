@@ -3,6 +3,8 @@ package de.felser_net.connecttc66c
 import android.bluetooth.*
 import android.content.Context
 import android.util.Log
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import java.util.*
 
 private const val TAG = "BluetoothCommunication"
@@ -34,6 +36,7 @@ class BluetoothCommunication(context: Context) {
     private var mBtAdapter: BluetoothAdapter? = null
     private var mGattTx: BluetoothGatt? = null
     private var mGattRx: BluetoothGatt? = null
+    private var mReceiveCallback: ((data: TC66Data) -> Unit )? = null
 
     // some constants
     @Suppress("SpellCheckingInspection")
@@ -77,6 +80,7 @@ class BluetoothCommunication(context: Context) {
         mGattRx?.disconnect()
         mGattRx?.close()
         mGattRx = null
+        mReceiveCallback = null
     }
 
     fun sendCommand(cmd_data: ByteArray) {
@@ -95,8 +99,15 @@ class BluetoothCommunication(context: Context) {
         mGattTx?.writeCharacteristic(txCharacteristic)
     }
 
-    fun receiveData() {
-        val service = mGattRx?.getService(SERVICE_UUID_RX)
+    fun receiveData(callback: (data: TC66Data) -> Unit ) {
+        var service: BluetoothGattService?
+        while((mGattRx?.getService(SERVICE_UUID_RX).also { service = it }) == null) {
+            Log.d(TAG, "receiveData: waiting for RX service...")
+            runBlocking {
+                delay(500)
+            }
+            service = mGattRx?.getService(SERVICE_UUID_RX)
+        }
         Log.d(TAG, "receiveData: service: $service")
 
         val rxCharacteristic = service?.getCharacteristic(MESSAGE_UUID_RX)
@@ -118,6 +129,7 @@ class BluetoothCommunication(context: Context) {
         if (mGattRx?.writeDescriptor(desc) == false) {
             Log.e(TAG, "receiveData: writeDescriptor: failed")
         }
+        mReceiveCallback = callback
     }
 
     // our BluetoothGattCallback implementation
@@ -158,6 +170,7 @@ class BluetoothCommunication(context: Context) {
             if(characteristic.value.size < 192)
                 return
             val data = TC66Data(characteristic.value)
+            mReceiveCallback?.invoke(data)
         }
     }
 }

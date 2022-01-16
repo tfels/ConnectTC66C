@@ -12,12 +12,15 @@ class TC66Data(cipherText: ByteArray) {
     private val aesKey = byteArrayOf(88, 33, -6, 86, 1, -78, -16, 38, -121, -1, 18, 4, 98, 42, 79, -80, -122, -12, 2, 96, -127, 111, -102, 11, -89, -15, 6, 97, -102, -72, 114, -120)
     private var data:ByteArray = aesDecrypt(cipherText, aesKey)
 
-    init {
-        val clearText = String(data, Charsets.US_ASCII)
-        Log.d(TAG, "device: " + clearText.substring(4, 8))
+    fun decode() {
+        Log.d(TAG, toString())
     }
 
-    fun decode() {
+    override fun toString(): String {
+        val clearText = String(data, Charsets.US_ASCII)
+        val deviceName = clearText.substring(4,8)
+
+        return "TC66Data(device=$deviceName)"
     }
 
     @SuppressLint("getInstance") // suppress ECB warning, we have to use ECB ;-)

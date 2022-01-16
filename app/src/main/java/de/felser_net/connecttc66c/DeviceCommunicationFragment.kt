@@ -54,7 +54,10 @@ class DeviceCommunicationFragment : Fragment() {
             btComObject?.sendCommand(BluetoothCommunication.CMD_ROTATE)
         }
         binding.buttonGetData.setOnClickListener {
-            btComObject?.receiveData()
+            activity?.runOnUiThread {
+                // clear data field in UI
+                binding.textviewData.text = ""
+            }
             btComObject?.sendCommand(BluetoothCommunication.CMD_GET_VALUES)
         }
     }
@@ -72,10 +75,24 @@ class DeviceCommunicationFragment : Fragment() {
         val deviceAddress = sharedPref.getString(getString(R.string.saved_device_address), null)
         if (deviceAddress != null)
             btComObject?.connect(deviceAddress)
+
+        // setup our data receiver
+        btComObject?.receiveData()
+        { data: TC66Data ->
+            data.decode()
+            activity?.runOnUiThread {
+                showData(data)
+            }
+        }
     }
 
     override fun onPause() {
         btComObject?.disconnect()
         super.onPause()
+    }
+
+    // this function should run on the ui thread!
+    private fun showData(data: TC66Data) {
+        binding.textviewData.text = data.toString()
     }
 }
