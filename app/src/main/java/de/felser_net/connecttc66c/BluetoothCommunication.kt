@@ -4,7 +4,6 @@ import android.bluetooth.*
 import android.content.Context
 import android.util.Log
 import java.util.*
-import android.bluetooth.BluetoothGattDescriptor
 
 
 class BluetoothCommunication(context: Context) {
@@ -42,6 +41,8 @@ class BluetoothCommunication(context: Context) {
         val CMD_ROTATE = "brotat\r\n".toByteArray(Charsets.US_ASCII)
         val CMD_GET_VALUES = "bgetva\r\n".toByteArray(Charsets.US_ASCII)
     }
+
+
 
     fun initBluetooth() {
         val bluetoothManager = mContext.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
@@ -149,6 +150,13 @@ class BluetoothCommunication(context: Context) {
         override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
             super.onCharacteristicChanged(gatt, characteristic)
             Log.d(TAG, "onCharacteristicChanged, len=${characteristic?.value?.size}")
+            if(characteristic == null)
+                return
+            if(characteristic.value == null)
+                return
+            if(characteristic.value.size < 192)
+                return
+            val data = TC66Data(characteristic.value)
         }
     }
 }
