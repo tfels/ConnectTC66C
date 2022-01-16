@@ -54,7 +54,7 @@ class DeviceCommunicationFragment : Fragment() {
             btComObject?.sendCommand(BluetoothCommunication.CMD_ROTATE)
         }
         binding.buttonGetData.setOnClickListener {
-            btComObject?.revcData()
+            btComObject?.receiveData()
             btComObject?.sendCommand(BluetoothCommunication.CMD_GET_VALUES)
         }
     }
