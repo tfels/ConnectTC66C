@@ -44,6 +44,8 @@ class MainActivity : AppCompatActivity() {
         binding.fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
+            btComObject.disconnect()
+            btComObject.connect("48:87:2D:64:0C:32")
         }
 
         // check if bluetooth BLE is available
