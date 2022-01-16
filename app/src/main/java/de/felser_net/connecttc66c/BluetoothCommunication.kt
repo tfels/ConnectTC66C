@@ -7,13 +7,15 @@ import java.util.*
 import android.bluetooth.BluetoothGattDescriptor
 
 
-
-
 class BluetoothCommunication(context: Context) {
     private val TAG = "BluetoothCommunication"
     private val mContext = context
     private var mBtAdapter: BluetoothAdapter? = null
-    private var mGatt: BluetoothGatt? = null
+    private var mGattTx: BluetoothGatt? = null
+    private var mGattRx: BluetoothGatt? = null
+
+    // generic UUID for the UART BTLE client characteristic configuration descriptor (CCCD) which is necessary for notifications.
+    private val CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
 
     // uuids for device name "BT24-M"
     private val SERVICE_UUID_TX_BT24 = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb")
@@ -50,39 +52,70 @@ class BluetoothCommunication(context: Context) {
     fun connect(deviceAddress: String): Boolean {
         if(mBtAdapter == null)
             return false
-        if(mGatt != null)
+        if(mGattTx != null || mGattRx != null)
             disconnect()
 
         mBtAdapter?.let {
             val device = it.getRemoteDevice(deviceAddress)
             Log.d(TAG, "device.connectGatt")
-            mGatt = device.connectGatt(mContext, false, mGattClientCallback)
-            val ret = mGatt?.connect()
-            Log.i(TAG, "gatt.connect()="+ret.toString())
+            mGattTx = device.connectGatt(mContext, false, mGattClientCallback)
+            val retTx = mGattTx?.connect()
+            Log.i(TAG, "mGattTx.connect()="+retTx.toString())
+            mGattRx = device.connectGatt(mContext, false, mGattClientCallback)
+            val retRx = mGattRx?.connect()
+            Log.i(TAG, "mGattRx.connect()="+retRx.toString())
         }
         return true
     }
 
     fun disconnect() {
-        mGatt?.disconnect()
-        mGatt?.close()
-        mGatt = null
+        mGattTx?.disconnect()
+        mGattTx?.close()
+        mGattTx = null
+        mGattRx?.disconnect()
+        mGattRx?.close()
+        mGattRx = null
     }
 
     fun sendCommand(cmd_data: ByteArray) {
 
-        val service = mGatt?.getService(SERVICE_UUID_TX)
-        Log.d(TAG, "onServicesDiscovered: service: $service")
+        val service = mGattTx?.getService(SERVICE_UUID_TX)
+        Log.d(TAG, "sendCommand: service: $service")
 
         val messageCharacteristic_tx = service?.getCharacteristic(MESSAGE_UUID_TX)
         val props = messageCharacteristic_tx?.properties
         val expectedProperties = BluetoothGattCharacteristic.PROPERTY_WRITE or BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
         if(props?.and(expectedProperties) != expectedProperties)
-            Log.d(TAG, "messageCharacteristic_tx: wrong properties: $props")
+            Log.e(TAG, "sendCommand: messageCharacteristic_tx: wrong properties: $props")
 
         // Update TX characteristic value.  Note the setValue overload that takes a byte array must be used.
         messageCharacteristic_tx?.setValue(cmd_data)
-        mGatt?.writeCharacteristic(messageCharacteristic_tx)
+        mGattTx?.writeCharacteristic(messageCharacteristic_tx)
+    }
+
+    fun revcData() {
+        val service = mGattRx?.getService(SERVICE_UUID_RX)
+        Log.d(TAG, "revcData: service: $service")
+
+        val messageCharacteristic_rx = service?.getCharacteristic(MESSAGE_UUID_RX)
+        val props = messageCharacteristic_rx?.properties
+        val expectedProperties = BluetoothGattCharacteristic.PROPERTY_NOTIFY or BluetoothGattCharacteristic.PROPERTY_READ
+        if(props?.and(expectedProperties) != expectedProperties)
+            Log.e(TAG, "revcData: messageCharacteristic_rx: wrong properties: $props")
+
+        if (mGattRx?.setCharacteristicNotification(messageCharacteristic_rx, true) == false) {
+            Log.e(TAG, "revcData: setCharacteristicNotification: failed")
+        }
+
+        // Next update the RX characteristic's client descriptor to enable notifications.
+        val desc: BluetoothGattDescriptor? = messageCharacteristic_rx?.getDescriptor(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_UUID)
+        if (desc == null) {
+            Log.e(TAG, "revcData: getDescriptor: failed")
+        }
+        desc?.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+        if (mGattRx?.writeDescriptor(desc) == false) {
+            Log.e(TAG, "revcData: writeDescriptor: failed")
+        }
     }
 
     // our BluetoothGattCallback implementation
@@ -108,107 +141,14 @@ class BluetoothCommunication(context: Context) {
 
             if (status != BluetoothGatt.GATT_SUCCESS) {
                 mIsConnected = false
-                Log.d(TAG, "onServicesDiscovered: status: $status")
+                Log.w(TAG, "onServicesDiscovered: status: $status")
                 return
             }
-            if (gatt != mGatt) {
-                mIsConnected = false
-                mGatt = gatt
-                Log.d(TAG, "onServicesDiscovered: gatt object differs: prev gatt $mGatt now: $gatt")
-                return
-            }
-
-            val service = gatt?.getService(SERVICE_UUID_RX)
-            Log.d(TAG, "onServicesDiscovered: service: $service")
-
-            val messageCharacteristic_rx = service?.getCharacteristic(MESSAGE_UUID_RX)
-            val props = messageCharacteristic_rx?.properties
-            val expectedProperties = BluetoothGattCharacteristic.PROPERTY_NOTIFY or BluetoothGattCharacteristic.PROPERTY_READ
-            if(props?.and(expectedProperties) != expectedProperties)
-                Log.d(TAG, "messageCharacteristic_rx: wrong properties: $props")
-
-            /*
-            if (gatt?.setCharacteristicNotification(messageCharacteristic_rx, true) == false) {
-                Log.d(TAG, "setCharacteristicNotification: failed on 1")
-            }
-
-            // UUID for the UART BTLE client characteristic which is necessary for notifications.
-            val CLIENT_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
-
-            // Next update the RX characteristic's client descriptor to enable notifications.
-            val desc: BluetoothGattDescriptor? = messageCharacteristic_rx?.getDescriptor(CLIENT_UUID)
-            if (desc == null) {
-                Log.d(TAG, "getDescriptor: failed on 1")
-            }
-            desc?.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-            if (!gatt!!.writeDescriptor(desc)) {
-                Log.d(TAG, "writeDescriptor: failed on 1")
-            }
-*/
         }
 
-        override fun onCharacteristicRead(
-            gatt: BluetoothGatt?,
-            characteristic: BluetoothGattCharacteristic?,
-            status: Int
-        ) {
-            super.onCharacteristicRead(gatt, characteristic, status)
-            Log.d(TAG, "onCharacteristicRead")
-        }
-
-        override fun onCharacteristicWrite(
-            gatt: BluetoothGatt?,
-            characteristic: BluetoothGattCharacteristic?,
-            status: Int
-        ) {
-            super.onCharacteristicWrite(gatt, characteristic, status)
-            Log.d(TAG, "onCharacteristicWrite")
-        }
-
-        override fun onCharacteristicChanged(
-            gatt: BluetoothGatt?,
-            characteristic: BluetoothGattCharacteristic?
-        ) {
+        override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
             super.onCharacteristicChanged(gatt, characteristic)
-            Log.d(TAG, "onCharacteristicChanged")
-        }
-
-        override fun onDescriptorRead(
-            gatt: BluetoothGatt?,
-            descriptor: BluetoothGattDescriptor?,
-            status: Int
-        ) {
-            super.onDescriptorRead(gatt, descriptor, status)
-            Log.d(TAG, "onDescriptorRead")
-        }
-
-        override fun onDescriptorWrite(
-            gatt: BluetoothGatt?,
-            descriptor: BluetoothGattDescriptor?,
-            status: Int
-        ) {
-            super.onDescriptorWrite(gatt, descriptor, status)
-            Log.d(TAG, "onDescriptorWrite")
-        }
-
-        override fun onReliableWriteCompleted(gatt: BluetoothGatt?, status: Int) {
-            super.onReliableWriteCompleted(gatt, status)
-            Log.d(TAG, "onReliableWriteCompleted")
-        }
-
-        override fun onReadRemoteRssi(gatt: BluetoothGatt?, rssi: Int, status: Int) {
-            super.onReadRemoteRssi(gatt, rssi, status)
-            Log.d(TAG, "onReadRemoteRssi")
-        }
-
-        override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
-            super.onMtuChanged(gatt, mtu, status)
-            Log.d(TAG, "onMtuChanged")
-        }
-
-        override fun onServiceChanged(gatt: BluetoothGatt) {
-            super.onServiceChanged(gatt)
-            Log.d(TAG, "onServiceChanged")
+            Log.d(TAG, "onCharacteristicChanged, len=${characteristic?.value?.size}")
         }
     }
 }
