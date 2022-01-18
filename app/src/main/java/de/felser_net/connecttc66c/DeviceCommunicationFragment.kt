@@ -79,10 +79,12 @@ class DeviceCommunicationFragment : Fragment() {
         // setup our data receiver
         btComObject?.receiveData()
         { data: TC66Data ->
-            data.decode()
-            activity?.runOnUiThread {
-                showData(data)
-            }
+                activity?.runOnUiThread {
+                    if(data.decode())
+                        showData(data)
+                    else
+                        binding.textviewData.text = "<decode error>"
+                }
         }
     }
 
