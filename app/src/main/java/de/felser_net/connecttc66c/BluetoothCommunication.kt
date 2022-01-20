@@ -3,43 +3,50 @@ package de.felser_net.connecttc66c
 import android.bluetooth.*
 import android.content.Context
 import android.util.Log
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import java.util.*
-import android.bluetooth.BluetoothGattDescriptor
 
+private const val TAG = "BluetoothCommunication"
 
+// generic UUID for the UART BTLE client characteristic configuration descriptor (CCCD) which is necessary for notifications.
+private val CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
+
+// uuids for device name "BT24-M"
+private val SERVICE_UUID_TX_BT24 = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb")
+private val MESSAGE_UUID_TX_BT24 = UUID.fromString("0000ffe2-0000-1000-8000-00805f9b34fb")
+private val SERVICE_UUID_RX_BT24 = SERVICE_UUID_TX_BT24
+private val MESSAGE_UUID_RX_BT24 = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb")
+/*
+// uuids for device name "TC66C"
+private val SERVICE_UUID_TX_TC66C = UUID.fromString("0000ffe5-0000-1000-8000-00805f9b34fb")
+private val MESSAGE_UUID_TX_TC66C = UUID.fromString("0000ffe9-0000-1000-8000-00805f9b34fb")
+private val SERVICE_UUID_RX_TC66C = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb")
+private val MESSAGE_UUID_RX_TC66C = UUID.fromString("0000ffe4-0000-1000-8000-00805f9b34fb")
+*/
+// used values
+private val SERVICE_UUID_TX = SERVICE_UUID_TX_BT24
+private val MESSAGE_UUID_TX = MESSAGE_UUID_TX_BT24
+private val SERVICE_UUID_RX = SERVICE_UUID_RX_BT24
+private val MESSAGE_UUID_RX = MESSAGE_UUID_RX_BT24
 
 
 class BluetoothCommunication(context: Context) {
-    private val TAG = "BluetoothCommunication"
     private val mContext = context
     private var mBtAdapter: BluetoothAdapter? = null
-    private var mGatt: BluetoothGatt? = null
-
-    // uuids for device name "BT24-M"
-    private val SERVICE_UUID_TX_BT24 = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb")
-    private val MESSAGE_UUID_TX_BT24 = UUID.fromString("0000ffe2-0000-1000-8000-00805f9b34fb")
-    private val SERVICE_UUID_RX_BT24 = SERVICE_UUID_TX_BT24
-    private val MESSAGE_UUID_RX_BT24 = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb")
-
-    // uuids for device name "TC66C"
-    private val SERVICE_UUID_TX_TC66C = UUID.fromString("0000ffe5-0000-1000-8000-00805f9b34fb")
-    private val MESSAGE_UUID_TX_TC66C = UUID.fromString("0000ffe9-0000-1000-8000-00805f9b34fb")
-    private val SERVICE_UUID_RX_TC66C = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb")
-    private val MESSAGE_UUID_RX_TC66C = UUID.fromString("0000ffe4-0000-1000-8000-00805f9b34fb")
-
-    // used values
-    private val SERVICE_UUID_TX = SERVICE_UUID_TX_BT24
-    private val MESSAGE_UUID_TX = MESSAGE_UUID_TX_BT24
-    private val SERVICE_UUID_RX = SERVICE_UUID_RX_BT24
-    private val MESSAGE_UUID_RX = MESSAGE_UUID_RX_BT24
+    private var mGattTx: BluetoothGatt? = null
+    private var mGattRx: BluetoothGatt? = null
+    private var mReceiveCallback: ((data: TC66Data) -> Unit )? = null
 
     // some constants
+    @Suppress("SpellCheckingInspection")
     companion object {
         val CMD_PREV_PAGE = "blastp\r\n".toByteArray(Charsets.US_ASCII)
         val CMD_NEXT_PAGE = "bnextp\r\n".toByteArray(Charsets.US_ASCII)
         val CMD_ROTATE = "brotat\r\n".toByteArray(Charsets.US_ASCII)
         val CMD_GET_VALUES = "bgetva\r\n".toByteArray(Charsets.US_ASCII)
     }
+
 
     fun initBluetooth() {
         val bluetoothManager = mContext.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
@@ -50,39 +57,79 @@ class BluetoothCommunication(context: Context) {
     fun connect(deviceAddress: String): Boolean {
         if(mBtAdapter == null)
             return false
-        if(mGatt != null)
+        if(mGattTx != null || mGattRx != null)
             disconnect()
 
         mBtAdapter?.let {
             val device = it.getRemoteDevice(deviceAddress)
             Log.d(TAG, "device.connectGatt")
-            mGatt = device.connectGatt(mContext, false, mGattClientCallback)
-            val ret = mGatt?.connect()
-            Log.i(TAG, "gatt.connect()="+ret.toString())
+            mGattTx = device.connectGatt(mContext, false, mGattClientCallback)
+            val retTx = mGattTx?.connect()
+            Log.i(TAG, "mGattTx.connect()="+retTx.toString())
+            mGattRx = device.connectGatt(mContext, false, mGattClientCallback)
+            val retRx = mGattRx?.connect()
+            Log.i(TAG, "mGattRx.connect()="+retRx.toString())
         }
         return true
     }
 
     fun disconnect() {
-        mGatt?.disconnect()
-        mGatt?.close()
-        mGatt = null
+        mGattTx?.disconnect()
+        mGattTx?.close()
+        mGattTx = null
+        mGattRx?.disconnect()
+        mGattRx?.close()
+        mGattRx = null
+        mReceiveCallback = null
     }
 
     fun sendCommand(cmd_data: ByteArray) {
 
-        val service = mGatt?.getService(SERVICE_UUID_TX)
-        Log.d(TAG, "onServicesDiscovered: service: $service")
+        val service = mGattTx?.getService(SERVICE_UUID_TX)
+        Log.d(TAG, "sendCommand: service: $service")
 
-        val messageCharacteristic_tx = service?.getCharacteristic(MESSAGE_UUID_TX)
-        val props = messageCharacteristic_tx?.properties
+        val txCharacteristic = service?.getCharacteristic(MESSAGE_UUID_TX)
+        val props = txCharacteristic?.properties
         val expectedProperties = BluetoothGattCharacteristic.PROPERTY_WRITE or BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
         if(props?.and(expectedProperties) != expectedProperties)
-            Log.d(TAG, "messageCharacteristic_tx: wrong properties: $props")
+            Log.e(TAG, "sendCommand: messageCharacteristic_tx: wrong properties: $props")
 
         // Update TX characteristic value.  Note the setValue overload that takes a byte array must be used.
-        messageCharacteristic_tx?.setValue(cmd_data)
-        mGatt?.writeCharacteristic(messageCharacteristic_tx)
+        txCharacteristic?.value = cmd_data
+        mGattTx?.writeCharacteristic(txCharacteristic)
+    }
+
+    fun receiveData(callback: (data: TC66Data) -> Unit ) {
+        var service: BluetoothGattService?
+        while((mGattRx?.getService(SERVICE_UUID_RX).also { service = it }) == null) {
+            Log.d(TAG, "receiveData: waiting for RX service...")
+            runBlocking {
+                delay(500)
+            }
+            service = mGattRx?.getService(SERVICE_UUID_RX)
+        }
+        Log.d(TAG, "receiveData: service: $service")
+
+        val rxCharacteristic = service?.getCharacteristic(MESSAGE_UUID_RX)
+        val props = rxCharacteristic?.properties
+        val expectedProperties = BluetoothGattCharacteristic.PROPERTY_NOTIFY or BluetoothGattCharacteristic.PROPERTY_READ
+        if(props?.and(expectedProperties) != expectedProperties)
+            Log.e(TAG, "receiveData: messageCharacteristic_rx: wrong properties: $props")
+
+        if (mGattRx?.setCharacteristicNotification(rxCharacteristic, true) == false) {
+            Log.e(TAG, "receiveData: setCharacteristicNotification: failed")
+        }
+
+        // Next update the RX characteristic's client descriptor to enable notifications.
+        val desc: BluetoothGattDescriptor? = rxCharacteristic?.getDescriptor(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_UUID)
+        if (desc == null) {
+            Log.e(TAG, "receiveData: getDescriptor: failed")
+        }
+        desc?.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+        if (mGattRx?.writeDescriptor(desc) == false) {
+            Log.e(TAG, "receiveData: writeDescriptor: failed")
+        }
+        mReceiveCallback = callback
     }
 
     // our BluetoothGattCallback implementation
@@ -93,13 +140,13 @@ class BluetoothCommunication(context: Context) {
             super.onConnectionStateChange(gatt, status, newState)
 
             val isSuccess = status == BluetoothGatt.GATT_SUCCESS
-            var isConnected = newState == BluetoothProfile.STATE_CONNECTED
+            val isConnected = newState == BluetoothProfile.STATE_CONNECTED
             Log.d(TAG, "onConnectionStateChange: gatt: $gatt success: $isSuccess connected: $isConnected")
             // try to send a message to the other device as a test
-            if (isSuccess && isConnected)  // discover services
-                mIsConnected = gatt?.discoverServices() == true
+            mIsConnected = if (isSuccess && isConnected)  // discover services
+                gatt?.discoverServices() == true
             else
-                mIsConnected = false
+                false
         }
 
         override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
@@ -108,107 +155,22 @@ class BluetoothCommunication(context: Context) {
 
             if (status != BluetoothGatt.GATT_SUCCESS) {
                 mIsConnected = false
-                Log.d(TAG, "onServicesDiscovered: status: $status")
+                Log.w(TAG, "onServicesDiscovered: status: $status")
                 return
             }
-            if (gatt != mGatt) {
-                mIsConnected = false
-                mGatt = gatt
-                Log.d(TAG, "onServicesDiscovered: gatt object differs: prev gatt $mGatt now: $gatt")
-                return
-            }
-
-            val service = gatt?.getService(SERVICE_UUID_RX)
-            Log.d(TAG, "onServicesDiscovered: service: $service")
-
-            val messageCharacteristic_rx = service?.getCharacteristic(MESSAGE_UUID_RX)
-            val props = messageCharacteristic_rx?.properties
-            val expectedProperties = BluetoothGattCharacteristic.PROPERTY_NOTIFY or BluetoothGattCharacteristic.PROPERTY_READ
-            if(props?.and(expectedProperties) != expectedProperties)
-                Log.d(TAG, "messageCharacteristic_rx: wrong properties: $props")
-
-            /*
-            if (gatt?.setCharacteristicNotification(messageCharacteristic_rx, true) == false) {
-                Log.d(TAG, "setCharacteristicNotification: failed on 1")
-            }
-
-            // UUID for the UART BTLE client characteristic which is necessary for notifications.
-            val CLIENT_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
-
-            // Next update the RX characteristic's client descriptor to enable notifications.
-            val desc: BluetoothGattDescriptor? = messageCharacteristic_rx?.getDescriptor(CLIENT_UUID)
-            if (desc == null) {
-                Log.d(TAG, "getDescriptor: failed on 1")
-            }
-            desc?.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-            if (!gatt!!.writeDescriptor(desc)) {
-                Log.d(TAG, "writeDescriptor: failed on 1")
-            }
-*/
         }
 
-        override fun onCharacteristicRead(
-            gatt: BluetoothGatt?,
-            characteristic: BluetoothGattCharacteristic?,
-            status: Int
-        ) {
-            super.onCharacteristicRead(gatt, characteristic, status)
-            Log.d(TAG, "onCharacteristicRead")
-        }
-
-        override fun onCharacteristicWrite(
-            gatt: BluetoothGatt?,
-            characteristic: BluetoothGattCharacteristic?,
-            status: Int
-        ) {
-            super.onCharacteristicWrite(gatt, characteristic, status)
-            Log.d(TAG, "onCharacteristicWrite")
-        }
-
-        override fun onCharacteristicChanged(
-            gatt: BluetoothGatt?,
-            characteristic: BluetoothGattCharacteristic?
-        ) {
+        override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
             super.onCharacteristicChanged(gatt, characteristic)
-            Log.d(TAG, "onCharacteristicChanged")
-        }
-
-        override fun onDescriptorRead(
-            gatt: BluetoothGatt?,
-            descriptor: BluetoothGattDescriptor?,
-            status: Int
-        ) {
-            super.onDescriptorRead(gatt, descriptor, status)
-            Log.d(TAG, "onDescriptorRead")
-        }
-
-        override fun onDescriptorWrite(
-            gatt: BluetoothGatt?,
-            descriptor: BluetoothGattDescriptor?,
-            status: Int
-        ) {
-            super.onDescriptorWrite(gatt, descriptor, status)
-            Log.d(TAG, "onDescriptorWrite")
-        }
-
-        override fun onReliableWriteCompleted(gatt: BluetoothGatt?, status: Int) {
-            super.onReliableWriteCompleted(gatt, status)
-            Log.d(TAG, "onReliableWriteCompleted")
-        }
-
-        override fun onReadRemoteRssi(gatt: BluetoothGatt?, rssi: Int, status: Int) {
-            super.onReadRemoteRssi(gatt, rssi, status)
-            Log.d(TAG, "onReadRemoteRssi")
-        }
-
-        override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
-            super.onMtuChanged(gatt, mtu, status)
-            Log.d(TAG, "onMtuChanged")
-        }
-
-        override fun onServiceChanged(gatt: BluetoothGatt) {
-            super.onServiceChanged(gatt)
-            Log.d(TAG, "onServiceChanged")
+            Log.d(TAG, "onCharacteristicChanged, len=${characteristic?.value?.size}")
+            if(characteristic == null)
+                return
+            if(characteristic.value == null)
+                return
+            if(characteristic.value.size < 192)
+                return
+            val data = TC66Data(characteristic.value)
+            mReceiveCallback?.invoke(data)
         }
     }
 }
