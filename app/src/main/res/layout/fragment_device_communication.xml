@@ -72,7 +72,166 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="3">
+        android:layout_weight="2">
+
+        <TextView
+            android:id="@+id/textview_product"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="product"
+            app:layout_constraintBottom_toTopOf="@+id/textview_voltage"
+            app:layout_constraintEnd_toStartOf="@+id/textview_serialnumber"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/textview_serialnumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="serialnumber"
+            app:layout_constraintBaseline_toBaselineOf="@+id/textview_product"
+            app:layout_constraintEnd_toStartOf="@+id/textview_version"
+            app:layout_constraintStart_toEndOf="@+id/textview_product" />
+
+        <TextView
+            android:id="@+id/textview_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="version"
+            app:layout_constraintBaseline_toBaselineOf="@+id/textview_product"
+            app:layout_constraintEnd_toStartOf="@+id/textview_numruns"
+            app:layout_constraintStart_toEndOf="@+id/textview_serialnumber" />
+
+        <TextView
+            android:id="@+id/textview_numruns"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="400dp"
+            android:text="numruns"
+            app:layout_constraintBaseline_toBaselineOf="@+id/textview_product"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textview_version" />
+
+        <TextView
+            android:id="@+id/textview_voltage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="voltage"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            app:layout_constraintBottom_toTopOf="@+id/textview_current"
+            app:layout_constraintEnd_toStartOf="@+id/textview_power"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textview_product" />
+
+        <TextView
+            android:id="@+id/textview_current"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="current"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            app:layout_constraintBottom_toTopOf="@+id/textview_resistance"
+            app:layout_constraintEnd_toStartOf="@+id/textview_power"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textview_voltage" />
+
+        <TextView
+            android:id="@+id/textview_power"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="power"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            app:layout_constraintBottom_toBottomOf="@+id/textview_current"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textview_current"
+            app:layout_constraintTop_toTopOf="@+id/textview_voltage" />
+
+        <TextView
+            android:id="@+id/textview_resistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="resistance"
+            app:layout_constraintBottom_toTopOf="@+id/textview_group0_charge"
+            app:layout_constraintEnd_toStartOf="@+id/textview_temperature"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textview_current" />
+
+        <TextView
+            android:id="@+id/textview_temperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="temperature"
+            app:layout_constraintBaseline_toBaselineOf="@+id/textview_resistance"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textview_resistance" />
+
+        <TextView
+            android:id="@+id/textview_group0_charge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="group0_charge"
+            app:layout_constraintBottom_toTopOf="@+id/textview_group0_energy"
+            app:layout_constraintEnd_toStartOf="@+id/textview_group1_charge"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textview_resistance" />
+
+        <TextView
+            android:id="@+id/textview_group1_charge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="group1_charge"
+            app:layout_constraintBaseline_toBaselineOf="@+id/textview_group0_charge"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textview_group0_charge" />
+
+        <TextView
+            android:id="@+id/textview_group0_energy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="group0_energy"
+            app:layout_constraintBottom_toTopOf="@+id/textview_d_plus_voltage"
+            app:layout_constraintEnd_toStartOf="@+id/textview_group1_energy"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textview_group0_charge" />
+
+        <TextView
+            android:id="@+id/textview_group1_energy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="group1_energy"
+            app:layout_constraintBaseline_toBaselineOf="@+id/textview_group0_energy"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textview_group0_energy" />
+
+        <TextView
+            android:id="@+id/textview_d_plus_voltage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="d_plus_voltage"
+            app:layout_constraintBottom_toTopOf="@+id/textview_data"
+            app:layout_constraintEnd_toStartOf="@+id/textview_d_minus_voltage"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textview_group0_energy" />
+
+        <TextView
+            android:id="@+id/textview_d_minus_voltage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="d_minus_voltage"
+            app:layout_constraintBaseline_toBaselineOf="@+id/textview_d_plus_voltage"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textview_d_plus_voltage" />
 
         <TextView
             android:id="@+id/textview_data"
@@ -83,7 +242,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/textview_d_plus_voltage" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
