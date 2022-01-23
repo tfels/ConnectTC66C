@@ -50,38 +50,36 @@ class TC66Data(cipherText: ByteArray) {
     private var data:ByteArray = aesDecrypt(cipherText, aesKey)
     private var dataIdx = 0
 
-    companion object {
-        // pac1
-        var productName = ""
-        var version = ""
-        var serialNumber = 0
-        var unknown_1_16 = 0
-        var unknown_1_20 = 0
-        var unknown_1_24 = 0
-        var unknown_1_28 = 0
-        var unknown_1_32 = 0
-        var unknown_1_36 = 0
-        var unknown_1_40 = 0
-        var numRuns = 0
-        var voltage = 0.0
-        var current = 0.0
-        var power = 0.0
-        // pac2
-        var resistance = 0.0
-        var group0_charge = 0
-        var group0_energy = 0
-        var group1_charge = 0
-        var group1_energy = 0
-        var temperature_sign = 0
-        var temperature = 0
-        var d_plus_voltage = 0.0
-        var d_minus_voltage = 0.0
-        var unknown_2_40 = 0
-        var unknown_2_44 = 0
-        var unknown_2_48 = 0
-        var unknown_2_52 = 0
-        var unknown_2_56 = 0
-    }
+    // pac1
+    var productName = ""
+    var version = ""
+    var serialNumber = 0
+    var unknown_1_16 = 0
+    var unknown_1_20 = 0
+    var unknown_1_24 = 0
+    var unknown_1_28 = 0
+    var unknown_1_32 = 0
+    var unknown_1_36 = 0
+    var unknown_1_40 = 0
+    var numRuns = 0
+    var voltage = 0.0
+    var current = 0.0
+    var power = 0.0
+    // pac2
+    var resistance = 0.0
+    var group0_charge = 0
+    var group0_energy = 0
+    var group1_charge = 0
+    var group1_energy = 0
+    var temperature_sign = 0
+    var temperature = 0
+    var d_plus_voltage = 0.0
+    var d_minus_voltage = 0.0
+    var unknown_2_40 = 0
+    var unknown_2_44 = 0
+    var unknown_2_48 = 0
+    var unknown_2_52 = 0
+    var unknown_2_56 = 0
 
     fun decode(): Boolean {
         if(data.size != 192) {
