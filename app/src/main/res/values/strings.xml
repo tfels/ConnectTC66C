@@ -20,4 +20,18 @@
     <string name="uuid_filter_on">UUID filter on</string>
     <string name="uuid_filter_off">UUID filter off</string>
     <string name="saved_device_address">device-address</string>
+
+    <string name="value_text_serialNumber">S/N %d</string>
+    <string name="value_text_version">v%s</string>
+    <string name="value_text_numruns">#%d</string>
+    <string name="value_text_voltage">%.4f V</string>
+    <string name="value_text_current">%.5f A</string>
+    <string name="value_text_power">%.4f W</string>
+    <string name="value_text_resistance">%.1f Ω</string>
+    <string name="value_text_charge">%d mAh</string>
+    <string name="value_text_energy">%d mWh</string>
+    <string name="value_text_temperature">%d °C/°F</string>
+    <string name="value_text_dplus_voltage">D+ %.2f V</string>
+    <string name="value_text_dminus_voltage">D- %.2f V</string>
+
 </resources>

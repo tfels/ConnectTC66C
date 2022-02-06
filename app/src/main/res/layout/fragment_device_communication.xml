@@ -1,73 +1,249 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".DeviceCommunicationFragment">
 
-    <Button
-        android:id="@+id/button_goto_ble_scan"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/btntext_goto_blescan"
-        app:layout_constraintBottom_toTopOf="@+id/button_previous_screen"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed" />
+        android:layout_weight="1">
 
-    <Button
-        android:id="@+id/button_previous_screen"
-        android:layout_width="wrap_content"
+        <Button
+            android:id="@+id/button_goto_ble_scan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btntext_goto_blescan"
+            app:layout_constraintBottom_toTopOf="@+id/button_get_data"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <Button
+            android:id="@+id/button_get_data"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="get data"
+            app:layout_constraintBottom_toTopOf="@+id/button_previous_screen"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/button_goto_ble_scan" />
+
+        <Button
+            android:id="@+id/button_previous_screen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="prev"
+            app:layout_constraintBottom_toTopOf="@+id/button_rotate_screen"
+            app:layout_constraintEnd_toStartOf="@+id/button_next_screen"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/button_get_data" />
+
+        <Button
+            android:id="@+id/button_next_screen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="next"
+            app:layout_constraintBaseline_toBaselineOf="@+id/button_previous_screen"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/button_previous_screen" />
+
+        <Button
+            android:id="@+id/button_rotate_screen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="rotate"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/button_previous_screen" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="prev"
-        app:layout_constraintBottom_toTopOf="@+id/button_rotate_screen"
-        app:layout_constraintEnd_toStartOf="@+id/button_next_screen"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_goto_ble_scan" />
+        android:layout_weight="2">
 
-    <Button
-        android:id="@+id/button_next_screen"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="next"
-        app:layout_constraintBaseline_toBaselineOf="@+id/button_previous_screen"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/button_previous_screen" />
+        <TextView
+            android:id="@+id/textview_product"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="product"
+            app:layout_constraintBottom_toTopOf="@+id/textview_voltage"
+            app:layout_constraintEnd_toStartOf="@+id/textview_serialnumber"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
 
-    <Button
-        android:id="@+id/button_rotate_screen"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="rotate"
-        app:layout_constraintBottom_toTopOf="@+id/button_get_data"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_previous_screen" />
+        <TextView
+            android:id="@+id/textview_serialnumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="serialnumber"
+            app:layout_constraintBaseline_toBaselineOf="@+id/textview_product"
+            app:layout_constraintEnd_toStartOf="@+id/textview_version"
+            app:layout_constraintStart_toEndOf="@+id/textview_product" />
 
-    <Button
-        android:id="@+id/button_get_data"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="get data"
-        app:layout_constraintBottom_toTopOf="@+id/textview_data"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_rotate_screen" />
+        <TextView
+            android:id="@+id/textview_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="version"
+            app:layout_constraintBaseline_toBaselineOf="@+id/textview_product"
+            app:layout_constraintEnd_toStartOf="@+id/textview_numruns"
+            app:layout_constraintStart_toEndOf="@+id/textview_serialnumber" />
 
-    <TextView
-        android:id="@+id/textview_data"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_get_data" />
+        <TextView
+            android:id="@+id/textview_numruns"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="400dp"
+            android:text="numruns"
+            app:layout_constraintBaseline_toBaselineOf="@+id/textview_product"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textview_version" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/textview_voltage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="voltage"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            app:layout_constraintBottom_toTopOf="@+id/textview_current"
+            app:layout_constraintEnd_toStartOf="@+id/textview_power"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textview_product" />
+
+        <TextView
+            android:id="@+id/textview_current"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="current"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            app:layout_constraintBottom_toTopOf="@+id/textview_resistance"
+            app:layout_constraintEnd_toStartOf="@+id/textview_power"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textview_voltage" />
+
+        <TextView
+            android:id="@+id/textview_power"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="power"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            app:layout_constraintBottom_toBottomOf="@+id/textview_current"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textview_current"
+            app:layout_constraintTop_toTopOf="@+id/textview_voltage" />
+
+        <TextView
+            android:id="@+id/textview_resistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="resistance"
+            app:layout_constraintBottom_toTopOf="@+id/textview_group0_charge"
+            app:layout_constraintEnd_toStartOf="@+id/textview_temperature"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textview_current" />
+
+        <TextView
+            android:id="@+id/textview_temperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="temperature"
+            app:layout_constraintBaseline_toBaselineOf="@+id/textview_resistance"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textview_resistance" />
+
+        <TextView
+            android:id="@+id/textview_group0_charge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="group0_charge"
+            app:layout_constraintBottom_toTopOf="@+id/textview_group0_energy"
+            app:layout_constraintEnd_toStartOf="@+id/textview_group1_charge"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textview_resistance" />
+
+        <TextView
+            android:id="@+id/textview_group1_charge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="group1_charge"
+            app:layout_constraintBaseline_toBaselineOf="@+id/textview_group0_charge"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textview_group0_charge" />
+
+        <TextView
+            android:id="@+id/textview_group0_energy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="group0_energy"
+            app:layout_constraintBottom_toTopOf="@+id/textview_d_plus_voltage"
+            app:layout_constraintEnd_toStartOf="@+id/textview_group1_energy"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textview_group0_charge" />
+
+        <TextView
+            android:id="@+id/textview_group1_energy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="group1_energy"
+            app:layout_constraintBaseline_toBaselineOf="@+id/textview_group0_energy"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textview_group0_energy" />
+
+        <TextView
+            android:id="@+id/textview_d_plus_voltage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="d_plus_voltage"
+            app:layout_constraintBottom_toTopOf="@+id/textview_data"
+            app:layout_constraintEnd_toStartOf="@+id/textview_d_minus_voltage"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textview_group0_energy" />
+
+        <TextView
+            android:id="@+id/textview_d_minus_voltage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="d_minus_voltage"
+            app:layout_constraintBaseline_toBaselineOf="@+id/textview_d_plus_voltage"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textview_d_plus_voltage" />
+
+        <TextView
+            android:id="@+id/textview_data"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="data"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textview_d_plus_voltage" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>
