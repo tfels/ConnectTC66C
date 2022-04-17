@@ -100,13 +100,15 @@ class BluetoothCommunication(context: Context) {
     }
 
     fun receiveData(callback: (data: TC66Data) -> Unit ) {
+        if(mGattRx == null) // not yet connected ==> no receive
+            return
+
         var service: BluetoothGattService?
         while((mGattRx?.getService(SERVICE_UUID_RX).also { service = it }) == null) {
             Log.d(TAG, "receiveData: waiting for RX service...")
             runBlocking {
                 delay(500)
             }
-            service = mGattRx?.getService(SERVICE_UUID_RX)
         }
         Log.d(TAG, "receiveData: service: $service")
 
