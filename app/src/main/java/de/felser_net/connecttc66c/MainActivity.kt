@@ -29,10 +29,6 @@ class MainActivity : AppCompatActivity() {
     internal lateinit var binding: ActivityMainBinding
     val btComObject = BluetoothCommunication(this)
 
-    companion object {
-        var blePermissionGranted: Boolean = false
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -67,29 +63,44 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        val permissionName = when {
+        val permissionNames: Array<String> = when {
             // Android 12
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> Manifest.permission.BLUETOOTH_SCAN
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> arrayOf(Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT)
             // Android 10
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> Manifest.permission.ACCESS_FINE_LOCATION
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
             // Android 9 or lower
-            else -> Manifest.permission.ACCESS_COARSE_LOCATION
+            else -> arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION)
         }
 
-        if (PermissionChecker.checkSelfPermission(this, permissionName) ==  PermissionChecker.PERMISSION_GRANTED ) {
-            Log.d("MainActivity", "BLE permission already granted")
-            blePermissionGranted = true
-        } else {
-            val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-            builder.setTitle(R.string.ble_ask_permission_title)
-            builder.setMessage(R.string.ble_ask_permission_message)
-            builder.setCancelable(false)
-            builder.setPositiveButton(android.R.string.ok) { _,_ ->
-                this.mRequestBlePermissionResult.launch(permissionName)
+        // first get a list of missing permissions
+        val missingPermissionNames = mutableListOf<String>()
+        var showRationale = false
+        for (permissionName in permissionNames) {
+            if (PermissionChecker.checkSelfPermission(this, permissionName) == PermissionChecker.PERMISSION_GRANTED) {
+                Log.d("MainActivity", "BLE permission $permissionName already granted")
+            } else {
+                missingPermissionNames.add(permissionName)
+                showRationale = showRationale or shouldShowRequestPermissionRationale(permissionName)
             }
-            builder.show()
         }
-        btComObject.initBluetooth()
+
+        // now ask for permission and initialize BT
+        if (missingPermissionNames.size > 0) {
+            if(showRationale) {
+                val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+                builder.setTitle(R.string.ble_ask_permission_title)
+                builder.setMessage(R.string.ble_ask_permission_message)
+                builder.setCancelable(false)
+                builder.setPositiveButton(android.R.string.ok) { _, _ ->
+                    this.mRequestBlePermissionsResult.launch(missingPermissionNames.toTypedArray())
+                }
+                builder.show()
+            } else {
+                this.mRequestBlePermissionsResult.launch(missingPermissionNames.toTypedArray())
+            }
+        } else {
+            btComObject.initBluetooth()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -131,20 +142,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     // our result handler object when requesting BLE permission
-    private val mRequestBlePermissionResult = registerForActivityResult(ActivityResultContracts.RequestPermission())
-    { isGranted ->
-        if (isGranted) {
-            Log.d("MainActivity", "BLE permission granted")
-            blePermissionGranted = true
-        } else {
-            Log.w("MainActivity", "BLE permission NOT granted)")
-            blePermissionGranted = false
-            val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-            builder.setTitle(R.string.ble_no_permission_title)
-            builder.setMessage(R.string.ble_no_permission_message)
-            builder.setCancelable(false)
-            builder.setPositiveButton(android.R.string.ok) { _,_ -> this.finish() }
-            builder.show()
+    private val mRequestBlePermissionsResult = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions())
+    { permissions ->
+        var allGranted = true
+        permissions.entries.forEach {
+            val permissionName = it.key
+            val isGranted = it.value
+
+            allGranted = allGranted and isGranted
+
+            if (isGranted) {
+                Log.d("MainActivity", "BLE permission $permissionName granted")
+            } else {
+                Log.w("MainActivity", "BLE permission $permissionName NOT granted)")
+                val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+                builder.setTitle(R.string.ble_no_permission_title)
+                builder.setMessage(R.string.ble_no_permission_message)
+                builder.setCancelable(false)
+                builder.setPositiveButton(android.R.string.ok) { _,_ -> this.finish() }
+                builder.show()
+            }
         }
+        if(allGranted)
+            btComObject.initBluetooth()
     }
 }
