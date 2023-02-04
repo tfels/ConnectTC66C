@@ -32,6 +32,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace 'de.felser_net.connecttc66c'
 }
 
 dependencies {
