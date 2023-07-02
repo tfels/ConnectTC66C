@@ -3,6 +3,7 @@ package de.felser_net.connecttc66c
 import android.bluetooth.*
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.util.*
@@ -104,8 +105,14 @@ class BluetoothCommunication(context: Context) {
             return
 
         var service: BluetoothGattService?
+        var timeoutCounter = 5*2
         while((mGattRx?.getService(SERVICE_UUID_RX).also { service = it }) == null) {
-            Log.d(TAG, "receiveData: waiting for RX service...")
+            if(timeoutCounter -- == 0) {
+                Log.d(TAG, "receiveData: waiting for RX service timeout")
+                Toast.makeText(mContext, R.string.bt_rx_timeout, Toast.LENGTH_LONG).show()
+                return
+            }
+            Log.d(TAG, "receiveData: waiting for RX service ($timeoutCounter) ...")
             runBlocking {
                 delay(500)
             }

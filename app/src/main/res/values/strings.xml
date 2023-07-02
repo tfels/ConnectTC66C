@@ -14,6 +14,7 @@
     <string name="bt_disabled_title">Bluetooth is disabled</string>
     <string name="bt_disabled_title_message">You did not enable bluetooth. Therefore this app cannot work and will terminate now.</string>
     <string name="unknown_device">&lt;unknown device&gt;</string>
+    <string name="bt_rx_timeout">bluetooth receive service timeout</string>
 
     <string name="device_last_seen_ago">%1$.2fs ago</string>
     <string name="device_rssi">RSSI: %1$d dBm</string>
