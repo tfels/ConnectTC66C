@@ -24,7 +24,7 @@ class DeviceCommunicationFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         _binding = FragmentDeviceCommunicationBinding.inflate(inflater, container, false)
 
@@ -42,7 +42,7 @@ class DeviceCommunicationFragment : Fragment() {
         binding.buttonGotoBleScan.setOnClickListener {
             findNavController().navigate(R.id.action_DeviceCommunicationFragment_to_BleScanFragment)
         }
-        binding.textviewData.text = "<some data>"
+        binding.textviewData.text = getString(R.string.text_some_data)
 
         binding.buttonPreviousScreen.setOnClickListener {
             btComObject?.sendCommand(BluetoothCommunication.CMD_PREV_PAGE)
@@ -79,7 +79,7 @@ class DeviceCommunicationFragment : Fragment() {
                     if(data.decode())
                         showData(data)
                     else
-                        binding.textviewData.text = "<decode error>"
+                        binding.textviewData.text = getString(R.string.text_data_decode_error)
                 }
         }
     }
@@ -92,25 +92,25 @@ class DeviceCommunicationFragment : Fragment() {
     // this function should run on the ui thread!
     private fun showData(data: TC66Data) {
         binding.textviewProduct.text = data.productName
-        binding.textviewSerialnumber.text = getResources().getString(R.string.value_text_serialNumber, data.serialNumber);
-        binding.textviewVersion.text = getResources().getString(R.string.value_text_version, data.version);
-        binding.textviewNumruns.text = getResources().getString(R.string.value_text_numruns, data.numRuns);
+        binding.textviewSerialnumber.text = resources.getString(R.string.value_text_serialNumber, data.serialNumber)
+        binding.textviewVersion.text = resources.getString(R.string.value_text_version, data.version)
+        binding.textviewNumruns.text = resources.getString(R.string.value_text_numruns, data.numRuns)
 
-        binding.textviewVoltage.text = getResources().getString(R.string.value_text_voltage, data.voltage);
-        binding.textviewCurrent.text = getResources().getString(R.string.value_text_current, data.current);
-        binding.textviewPower.text = getResources().getString(R.string.value_text_power, data.power);
+        binding.textviewVoltage.text = resources.getString(R.string.value_text_voltage, data.voltage)
+        binding.textviewCurrent.text = resources.getString(R.string.value_text_current, data.current)
+        binding.textviewPower.text = resources.getString(R.string.value_text_power, data.power)
 
-        binding.textviewResistance.text = getResources().getString(R.string.value_text_resistance, data.resistance)
+        binding.textviewResistance.text = resources.getString(R.string.value_text_resistance, data.resistance)
         val temperature = data.temperature * (if(data.temperature_sign==0) 1 else -1)
-        binding.textviewTemperature.text = getResources().getString(R.string.value_text_temperature, temperature)
+        binding.textviewTemperature.text = resources.getString(R.string.value_text_temperature, temperature)
 
-        binding.textviewGroup0Charge.text = getResources().getString(R.string.value_text_charge, data.group0_charge)
-        binding.textviewGroup0Energy.text = getResources().getString(R.string.value_text_energy, data.group0_energy)
-        binding.textviewGroup1Charge.text = getResources().getString(R.string.value_text_charge, data.group1_charge)
-        binding.textviewGroup1Energy.text = getResources().getString(R.string.value_text_energy, data.group1_energy)
+        binding.textviewGroup0Charge.text = resources.getString(R.string.value_text_charge, data.group0_charge)
+        binding.textviewGroup0Energy.text = resources.getString(R.string.value_text_energy, data.group0_energy)
+        binding.textviewGroup1Charge.text = resources.getString(R.string.value_text_charge, data.group1_charge)
+        binding.textviewGroup1Energy.text = resources.getString(R.string.value_text_energy, data.group1_energy)
 
-        binding.textviewDPlusVoltage.text = getResources().getString(R.string.value_text_dplus_voltage, data.d_plus_voltage)
-        binding.textviewDMinusVoltage.text = getResources().getString(R.string.value_text_dminus_voltage, data.d_minus_voltage)
+        binding.textviewDPlusVoltage.text = resources.getString(R.string.value_text_dplus_voltage, data.d_plus_voltage)
+        binding.textviewDMinusVoltage.text = resources.getString(R.string.value_text_dminus_voltage, data.d_minus_voltage)
 
         val remainingValues =
             "unknown_1_16 = ${data.unknown_1_16}\n" +

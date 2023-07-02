@@ -22,6 +22,8 @@
     <string name="uuid_filter_off">UUID filter off</string>
     <string name="saved_device_address">device-address</string>
 
+    <string name="text_some_data">&lt;some data&gt;></string>
+    <string name="text_data_decode_error">&lt;decode error&gt;</string>
     <string name="value_text_serialNumber">S/N %d</string>
     <string name="value_text_version">v%s</string>
     <string name="value_text_numruns">#%d</string>
