@@ -182,16 +182,13 @@ class BluetoothCommunication(context: Context) {
             }
         }
 
-        override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
-            super.onCharacteristicChanged(gatt, characteristic)
-            Log.d(TAG, "onCharacteristicChanged, len=${characteristic?.value?.size}")
-            if(characteristic == null)
+        override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, value: ByteArray) {
+            super.onCharacteristicChanged(gatt, characteristic, value)
+            Log.d(TAG, "onCharacteristicChanged, len=${value.size}")
+
+            if(value.size < 192)
                 return
-            if(characteristic.value == null)
-                return
-            if(characteristic.value.size < 192)
-                return
-            val data = TC66Data(characteristic.value)
+            val data = TC66Data(value)
             mReceiveCallback?.invoke(data)
         }
     }
