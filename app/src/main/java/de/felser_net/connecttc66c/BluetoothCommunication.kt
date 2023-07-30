@@ -1,9 +1,13 @@
 package de.felser_net.connecttc66c
 
+import android.Manifest
 import android.bluetooth.*
 import android.content.Context
+import android.content.pm.PackageManager
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresPermission
+import androidx.core.app.ActivityCompat
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.util.*
@@ -58,6 +62,9 @@ class BluetoothCommunication(context: Context) {
     fun connect(deviceAddress: String): Boolean {
         if(mBtAdapter == null)
             return false
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED)
+            return false
+
         if(mGattTx != null || mGattRx != null)
             disconnect()
 
@@ -86,6 +93,9 @@ class BluetoothCommunication(context: Context) {
 
     fun sendCommand(cmd_data: ByteArray) {
 
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED)
+            return
+
         val service = mGattTx?.getService(SERVICE_UUID_TX)
         Log.d(TAG, "sendCommand: service: $service")
 
@@ -102,6 +112,8 @@ class BluetoothCommunication(context: Context) {
 
     fun receiveData(callback: (data: TC66Data) -> Unit ) {
         if(mGattRx == null) // not yet connected ==> no receive
+            return
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED)
             return
 
         var service: BluetoothGattService?
@@ -145,6 +157,7 @@ class BluetoothCommunication(context: Context) {
     private val mGattClientCallback = object : BluetoothGattCallback() {
         private var mIsConnected = false
 
+        @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
 
@@ -169,16 +182,13 @@ class BluetoothCommunication(context: Context) {
             }
         }
 
-        override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
-            super.onCharacteristicChanged(gatt, characteristic)
-            Log.d(TAG, "onCharacteristicChanged, len=${characteristic?.value?.size}")
-            if(characteristic == null)
+        override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, value: ByteArray) {
+            super.onCharacteristicChanged(gatt, characteristic, value)
+            Log.d(TAG, "onCharacteristicChanged, len=${value.size}")
+
+            if(value.size < 192)
                 return
-            if(characteristic.value == null)
-                return
-            if(characteristic.value.size < 192)
-                return
-            val data = TC66Data(characteristic.value)
+            val data = TC66Data(value)
             mReceiveCallback?.invoke(data)
         }
     }
